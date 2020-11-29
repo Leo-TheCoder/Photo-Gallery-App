@@ -2,6 +2,8 @@ package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -29,7 +31,7 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imageView1, imageView2, imageView3, imageView4;
-        public TextView title;
+        public TextView title, morePhotos;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -37,7 +39,9 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             imageView2 = (ImageView) itemView.findViewById(R.id.image_albums_item2);
             imageView3 = (ImageView) itemView.findViewById(R.id.image_albums_item3);
             imageView4 = (ImageView) itemView.findViewById(R.id.image_albums_item4);
+            imageView4.setColorFilter(Color.rgb(88,88,88), PorterDuff.Mode.DARKEN);
             title = (TextView) itemView.findViewById(R.id.album_title);
+            morePhotos = (TextView) itemView.findViewById(R.id.more_photo_album);
         }
     }
     private ArrayList<PhotoCategory> mPhotoCategoryList;
@@ -102,6 +106,8 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         for(int i = 0; i < numberOfPhotos; i++)
         {
             if(i > 3) {
+                int remainPhotos = numberOfPhotos - 3;
+                holder.morePhotos.setText("" + remainPhotos+"\nmore");
                 break;
             }
 
