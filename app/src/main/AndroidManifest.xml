@@ -19,7 +19,6 @@
         <activity android:name=".LockTypeActivity"></activity>
         <activity android:name=".SettingActivity" />
         <activity android:name=".ImageActivity" />
-
         <activity
             android:name=".SplashScreenActivity"
             android:theme="@style/SplashscreenTheme">
@@ -29,13 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <activity
-            android:name=".MainActivity"
-            android:theme="@style/MainTheme"
-            />
-
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>
