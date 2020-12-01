@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -14,8 +15,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 
+
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.PopupMenu;
 
 import com.example.android.photogallery.Animation.ZoomOutPageTransformer;
 import com.example.android.photogallery.MainFragments.MainUIAdapter;
@@ -38,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private MainUIAdapter myAdapter;
 
-
     private ImageButton btnMenuList;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
 
         btnMenuList = findViewById(R.id.btn_option);
@@ -94,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
 //        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 //        ft.replace(R.id.testFragment, PhotosFragment.newInstance(photoDateAdapter)); ft.commit();
 
-
-
         btnMenuList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,6 +133,5 @@ public class MainActivity extends AppCompatActivity {
         });
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
-
     }
 }
