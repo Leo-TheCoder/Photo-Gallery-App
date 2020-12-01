@@ -3,18 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clipToPadding="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainFragments.AlbumsFragment">
-
     <!-- TODO: Update blank fragment layout -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        >
+        app:cardCornerRadius="30dp">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/album_recyclerview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"/>
 
     </androidx.cardview.widget.CardView>
 

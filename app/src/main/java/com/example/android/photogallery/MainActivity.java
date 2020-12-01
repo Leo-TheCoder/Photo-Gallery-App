@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.PopupMenu;
 
 
@@ -43,10 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private MainUIAdapter myAdapter;
 
-
-
-
-    Button btnMenuList;
+    private ImageButton btnMenuList;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -56,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        btnMenuList = findViewById(R.id.btnMenuList);
+        btnMenuList = findViewById(R.id.btn_option);
 
         PhotoLoader.externalStoragePermissionCheck(this);
 
