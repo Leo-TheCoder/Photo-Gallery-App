@@ -24,9 +24,17 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="My Application" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -44,6 +52,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1inxg9Mmtk6AluuTyB5E4iVNlJh" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -54,10 +65,11 @@
     <property name="DeviceAndSnapshotComboBoxAction.selectedDevice" value="4T89626HA1941903168" />
     <property name="DeviceAndSnapshotComboBoxAction.selectionTime" value="2020-11-28T14:02:35.990Z" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../LearningAndroid_2" />
-    <property name="project.structure.last.edited" value="Dependencies" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.17" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
   <component name="RecentsManager">
     <key name="android.template.1314306">
@@ -145,14 +157,18 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="318" y="45" key="#Inspections/0.0.1366.728@0.0.1366.728" timestamp="1605376341517" />
-    <state x="200" y="96" key="#PSD" timestamp="1606014083019">
+    <state x="200" y="96" key="#PSD" timestamp="1606810470451">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="200" y="96" key="#PSD/0.0.1366.728@0.0.1366.728" timestamp="1606014083019" />
+    <state x="200" y="96" key="#PSD/0.0.1366.728@0.0.1366.728" timestamp="1606810470451" />
     <state x="438" y="127" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog" timestamp="1605449954980">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="438" y="127" key="#com.intellij.codeInsight.editorActions.RestoreReferencesDialog/0.0.1366.728@0.0.1366.728" timestamp="1605449954980" />
+    <state x="145" y="13" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606810260710">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="145" y="13" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.728@0.0.1366.728" timestamp="1606810260710" />
     <state x="531" y="108" key="#com.intellij.ide.util.MemberChooser" timestamp="1606580133483">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
@@ -173,22 +189,26 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="463" y="119" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1606577381112" />
-    <state width="1286" height="4" key="GridCell.Tab.0.bottom" timestamp="1606570100430">
+    <state width="1286" height="17" key="GridCell.Tab.0.bottom" timestamp="1606811713803">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1286" height="4" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1606570100430" />
-    <state width="1286" height="4" key="GridCell.Tab.0.center" timestamp="1606570100430">
+    <state width="1286" height="17" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1606811713803" />
+    <state width="1286" height="17" key="GridCell.Tab.0.center" timestamp="1606811713803">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1286" height="4" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1606570100430" />
-    <state width="1286" height="4" key="GridCell.Tab.0.left" timestamp="1606570100429">
+    <state width="1286" height="17" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1606811713803" />
+    <state width="1286" height="17" key="GridCell.Tab.0.left" timestamp="1606811713802">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1286" height="4" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1606570100429" />
-    <state width="1286" height="4" key="GridCell.Tab.0.right" timestamp="1606570100430">
+    <state width="1286" height="17" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1606811713802" />
+    <state width="1286" height="17" key="GridCell.Tab.0.right" timestamp="1606811713803">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1286" height="4" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1606570100430" />
+    <state width="1286" height="17" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1606811713803" />
+    <state x="192" y="1" key="SettingsEditor" timestamp="1606811694158">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="192" y="1" key="SettingsEditor/0.0.1366.728@0.0.1366.728" timestamp="1606811694158" />
     <state x="379" y="188" key="com.intellij.ide.util.TipDialog" timestamp="1606561001169">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
