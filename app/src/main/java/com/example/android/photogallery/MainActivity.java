@@ -5,8 +5,13 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.PopupMenu;
 
 import com.example.android.photogallery.Animation.ZoomOutPageTransformer;
 import com.example.android.photogallery.MainFragments.MainUIAdapter;
@@ -29,11 +34,15 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private MainUIAdapter myAdapter;
 
+    Button btnMenuList;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        btnMenuList = findViewById(R.id.btnMenuList);
 
         PhotoLoader.externalStoragePermissionCheck(this);
 
@@ -79,5 +88,39 @@ public class MainActivity extends AppCompatActivity {
 //        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 //        ft.replace(R.id.testFragment, PhotosFragment.newInstance(photoDateAdapter)); ft.commit();
 
+
+        btnMenuList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopup(v);
+            }
+        });
+    }
+    void navigateToSetting(){
+        Intent intent = new Intent(this, SettingActivity.class);
+        startActivity(intent);
+    }
+
+
+    /**
+     * function that pop up the menu when button More got hit
+     * @param v the view that got hit
+     */
+    public void showPopup(View v){
+        PopupMenu popupMenu = new PopupMenu(this, btnMenuList);
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.settingMenuItem:
+                        navigateToSetting();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        popupMenu.inflate(R.menu.more_pop_up_menu);
+        popupMenu.show();
     }
 }
