@@ -39,13 +39,8 @@ public class SettingActivity extends AppCompatActivity  implements View.OnClickL
         }  else if (view.getId() == displayModeBtn.getId()) {
 
         } else if (view.getId() == secureBtn.getId()){
-
-            Intent lockTypeIntent = new Intent(this, LockTypeActivity.class);
-            startActivity(lockTypeIntent);
-
             //Intent lockTypeIntent = new Intent(this, LockTypeActivity.class);
             //startActivity(lockTypeIntent);
-
         }
     }
 }
