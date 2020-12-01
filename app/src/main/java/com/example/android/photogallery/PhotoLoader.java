@@ -79,7 +79,7 @@ public class PhotoLoader {
 
         if (cursor.moveToFirst()) {
             String id,bucket;
-            Long dateTaken,dateModif,dateAdded;
+            Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
 
             //get column Index
             int bucketColumn = cursor.getColumnIndex(
@@ -110,12 +110,12 @@ public class PhotoLoader {
                 Uri imageUri = Uri.withAppendedPath(allImageUri, id);
 
                 Date DateFromEpocTime = null;
-                if (dateTaken != 0) {
+                 if (dateAdded != 0) {
+                    DateFromEpocTime = new Date(dateAdded*1000L);
+                } else if (dateTaken != 0) {
                     DateFromEpocTime = new Date(dateTaken);
                 }
-                else if (dateAdded != 0) {
-                    DateFromEpocTime = new Date(dateAdded*1000L);
-                } else if (dateModif != 0){
+                else if (dateModif != 0){
                     DateFromEpocTime = new Date(dateModif*1000L);
                 }
                 //dateTime = formatter.format(DateFromEpocTime);
