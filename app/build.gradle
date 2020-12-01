@@ -6,7 +6,11 @@ android {
 
     defaultConfig {
         applicationId "com.example.android.photogallery"
+
+        minSdkVersion 16
+
         minSdkVersion 15
+
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
