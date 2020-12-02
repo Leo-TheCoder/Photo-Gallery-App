@@ -48,8 +48,8 @@ public class AlbumActivity extends AppCompatActivity {
         headerImageView = (ImageView) findViewById(R.id.album_header);
 
         try {
-            Bitmap headerImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), albumPhotoList.get(0).get_imageUri());
-            headerImageView.setImageBitmap(headerImage);
+            //Bitmap headerImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), albumPhotoList.get(0).get_imageUri());
+            headerImageView.setImageURI(albumPhotoList.get(0).get_imageUri());
         }
         catch (Exception ex)
         {

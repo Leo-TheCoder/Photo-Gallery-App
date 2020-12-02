@@ -7,9 +7,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_marginBottom="20dp">
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="200dp">
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        >
 
         <ImageView
             android:id="@+id/image_albums_item1"
@@ -30,7 +33,8 @@
             android:layout_margin="10dp"
             android:scaleType="centerCrop"
 
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/image_albums_item1"
+
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -39,7 +43,9 @@
             android:layout_height="85dp"
             android:layout_margin="10dp"
             android:scaleType="centerCrop"
+            app:layout_constraintLeft_toRightOf="@id/image_albums_item1"
             app:layout_constraintRight_toLeftOf="@id/image_albums_item4"
+
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
@@ -49,23 +55,28 @@
             android:layout_height="85dp"
             android:layout_margin="10dp"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/image_albums_item3"
+            app:layout_constraintTop_toBottomOf="@id/image_albums_item2"
+
             />
 
         <TextView
             android:id="@+id/more_photo_album"
             android:layout_width="85dp"
             android:layout_height="85dp"
-            app:layout_constraintBottom_toBottomOf="parent"
 
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/image_albums_item4"
+            app:layout_constraintLeft_toLeftOf="@id/image_albums_item4"
+            app:layout_constraintBottom_toBottomOf="@id/image_albums_item4"
+            app:layout_constraintRight_toRightOf="@id/image_albums_item4"
 
             android:layout_margin="10dp"
             android:textColor="@android:color/white"
             android:gravity="center" />
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <TextView
         android:id="@+id/album_title"
