@@ -34,18 +34,21 @@
             android:scaleType="centerCrop"
 
             app:layout_constraintLeft_toRightOf="@id/image_albums_item1"
-
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/image_albums_item3"
             android:layout_width="85dp"
             android:layout_height="85dp"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRTop="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom ="10dp"
             android:scaleType="centerCrop"
             app:layout_constraintLeft_toRightOf="@id/image_albums_item1"
             app:layout_constraintRight_toLeftOf="@id/image_albums_item4"
-
+            app:layout_constraintLeft_toLeftOf="@id/image_albums_item2"
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
@@ -53,11 +56,16 @@
             android:id="@+id/image_albums_item4"
             android:layout_width="85dp"
             android:layout_height="85dp"
-            android:layout_margin="10dp"
+
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginRTop="10dp"
+            android:layout_marginBottom="10dp"
             android:scaleType="centerCrop"
             app:layout_constraintLeft_toRightOf="@id/image_albums_item3"
-            app:layout_constraintTop_toBottomOf="@id/image_albums_item2"
 
+            app:layout_constraintRight_toRightOf="@id/image_albums_item2"
+            app:layout_constraintBottom_toBottomOf="parent"
             />
 
         <TextView

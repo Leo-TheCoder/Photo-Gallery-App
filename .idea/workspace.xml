@@ -34,8 +34,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1bbf473c-79fb-4a51-8b64-3b0909b26e46" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/android/photogallery/AlbumActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/android/photogallery/AlbumActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/album_item.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/album_item.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -292,6 +290,10 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="304" y="107" key="psd.add.library.dependency.panel.dimension/0.0.1366.728@0.0.1366.728" timestamp="1606014063462" />
+    <state x="616" y="240" key="run.anything.popup" timestamp="1606923904552">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1606923904552" />
     <state x="687" y="49" width="672" height="678" key="search.everywhere.popup" timestamp="1606579612535">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
