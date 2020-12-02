@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     public final static SimpleDateFormat Formatter = new SimpleDateFormat(Photo.DATE_FORMAT, Locale.ENGLISH);
+    public final static int PAGE_NUMBER = 2;
     private CharSequence[] tabTitle = {"PHOTOS", "ALBUM"};
 
     private ViewPager2 viewPager;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 //        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         myAdapter = new MainUIAdapter(this);
 
-        myAdapter.setNumOfTab(2);
+        myAdapter.setNumOfTab(PAGE_NUMBER);
         myAdapter.setPhotosDateAdapter(photoDateAdapter);
         myAdapter.setPhotosBucketAdapter(photoBucketAdapter);
 
@@ -107,6 +108,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * function that navigate user to setting activity
+     */
     void navigateToSetting(){
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);

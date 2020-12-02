@@ -54,14 +54,9 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
         //SET DEFAULT SWITCH VALUE
         switchFingerPrint.setChecked(sharedPref.getBoolean(KEY_FINGERPRINT,false));
 
-        registerActivityLifecycleCallbacks(this);
-
         linPinCode.setOnClickListener(this);
         linNone.setOnClickListener(this);
         switchFingerPrint.setOnClickListener(this);
-    }
-
-    private void registerActivityLifecycleCallbacks(LockTypeActivity lockTypeActivity) {
     }
 
     @Override
@@ -102,9 +97,9 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
     }
 
     void sendSetLockIntent(){
-        /*Intent setLockIntent = new Intent(this, PinLockActivity.class);
-        setLockIntent.putExtra(PinLockActivity.KEY_SET,true);
-        startActivityForResult(setLockIntent,LOCK_REQUEST_CODE);*/
+        Intent setLockIntent = new Intent(this, LockActivity.class);
+        setLockIntent.putExtra(LockActivity.KEY_SET,true);
+        startActivityForResult(setLockIntent,LOCK_REQUEST_CODE);
     }
 
     @Override
