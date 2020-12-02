@@ -1,6 +1,7 @@
 package com.example.android.photogallery;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -43,7 +44,9 @@ public class AlbumActivity extends AppCompatActivity {
 
         Integer numberOfPhotos = bundle.getInt("albumNumberofPhotos");
         numOfPhotosTextView = (TextView) findViewById(R.id.album_number_of_photos);
-        numOfPhotosTextView.setText(String.valueOf(numberOfPhotos) + " photos");
+        Resources res = getResources();
+        String numOfPhotos = res.getQuantityString(R.plurals.numberOfPhotos, numberOfPhotos, numberOfPhotos);
+        numOfPhotosTextView.setText(numOfPhotos);
 
         headerImageView = (ImageView) findViewById(R.id.album_header);
 
