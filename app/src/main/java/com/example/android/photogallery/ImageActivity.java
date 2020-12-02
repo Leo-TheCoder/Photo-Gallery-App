@@ -22,7 +22,7 @@ public class ImageActivity extends AppCompatActivity {
         Log.i("SIZE", "" + myPhotoList.size());
         int position = bundle.getInt("position");
 
-        ImageView myImageView = (ImageView)findViewById(R.id.show_main_photo);
+        TouchImageView myImageView = (TouchImageView)findViewById(R.id.show_main_photo);
         myImageView.setImageURI(myPhotoList.get(position).get_imageUri());
     }
 }

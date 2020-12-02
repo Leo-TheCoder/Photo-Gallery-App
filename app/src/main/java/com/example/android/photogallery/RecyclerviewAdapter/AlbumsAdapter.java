@@ -1,10 +1,13 @@
 package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,20 +21,22 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.android.photogallery.AlbumActivity;
 import com.example.android.photogallery.Photo;
 import com.example.android.photogallery.PhotoCategory;
 import com.example.android.photogallery.R;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 
 public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.ViewHolder> {
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public ImageView imageView1, imageView2, imageView3, imageView4;
         public TextView title, morePhotos;
+        private AlbumClickListener albumClickListener;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -42,6 +47,18 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             imageView4.setColorFilter(Color.rgb(88,88,88), PorterDuff.Mode.DARKEN);
             title = (TextView) itemView.findViewById(R.id.album_title);
             morePhotos = (TextView) itemView.findViewById(R.id.more_photo_album);
+
+            itemView.setOnClickListener(this);
+        }
+
+        public void setAlbumClickListener(AlbumClickListener albumClickListener)
+        {
+            this.albumClickListener = albumClickListener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            albumClickListener.onClick(v);
         }
     }
     private ArrayList<PhotoCategory> mPhotoCategoryList;
@@ -91,17 +108,18 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         return viewHolder;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onBindViewHolder(@NonNull AlbumsAdapter.ViewHolder holder, int position) {
-        ArrayList<Photo> currentPhotoList = getItem(position).get_photosList();
-        int numberOfPhotos = currentPhotoList.size();
+        final ArrayList<Photo> currentPhotoList = getItem(position).get_photosList();
+        final int numberOfPhotos = currentPhotoList.size();
+        final String title = getItem(position).get_title();
         ArrayList<ImageView> imageList = new ArrayList<ImageView>();
         imageList.add(holder.imageView1);
         imageList.add(holder.imageView2);
         imageList.add(holder.imageView3);
         imageList.add(holder.imageView4);
-        holder.title.setText(getItem(position).get_title());
+        holder.title.setText(title);
 
         for(int i = 0; i < numberOfPhotos; i++)
         {
@@ -115,9 +133,9 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             try {
                 Bitmap thumbnail =
                         mContext.getContentResolver().loadThumbnail(
-                                currentPhoto.get_imageUri(), new Size(150, 150), null);
-                //imageList.get(i).setImageBitmap(thumbnail);
-                imageList.get(i).setImageBitmap(Bitmap.createScaledBitmap(thumbnail, 200, 200, false));
+                                currentPhoto.get_imageUri(), new Size(200, 200), null);
+                imageList.get(i).setImageBitmap(thumbnail);
+                //imageList.get(i).setImageBitmap(Bitmap.createScaledBitmap(thumbnail, 200, 200, false));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -125,6 +143,24 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
 
 
 
+        holder.setAlbumClickListener(new AlbumClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Log.i("TEST CLICK ALBUM", " ");
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("albumPhotoList", currentPhotoList);
+                bundle.putString("albumName", title);
+                bundle.putInt("albumNumberofPhotos", Integer.valueOf(numberOfPhotos));
+
+                Intent callAlbumActivity = new Intent(mContext, AlbumActivity.class);
+                callAlbumActivity.putExtras(bundle);
+
+                mContext.startActivity(callAlbumActivity);
+
+            }
+        });
     }
 
     public static final DiffUtil.ItemCallback<PhotoCategory> DIFF_CALLBACK =

@@ -93,7 +93,7 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
         return viewHolder;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Get the data model based on position
@@ -106,7 +106,7 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
             Bitmap thumbnail =
                     mContext.getContentResolver().loadThumbnail(
                             currentPhoto.get_imageUri(), new Size(150, 150), null);
-            imageView.setImageBitmap(Bitmap.createScaledBitmap(thumbnail, 200, 250, false));
+            imageView.setImageBitmap(thumbnail);
         } catch (IOException e) {
             e.printStackTrace();
         }
