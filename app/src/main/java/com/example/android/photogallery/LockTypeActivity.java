@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 
 import androidx.biometric.BiometricManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
@@ -69,17 +70,8 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
                 break;
             case LOCK_REQUEST_CODE:
                 if (!data.getBooleanExtra("MESSAGE",false)) {
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            Log.i("Tag", "Access fail!!! Quitting!!!");
 
-                        }
-                    };
                     Toast.makeText(this,"Access fail!!! Quitting!!!",Toast.LENGTH_LONG).show();
-                    Handler handler = new android.os.Handler();
-                    handler.postDelayed(runnable, 1000);
-
-                    handler.removeCallbacks(runnable);
                     finish();
                 } else {
                     if (data.hasExtra("SET")){
