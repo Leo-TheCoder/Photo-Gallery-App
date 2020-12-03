@@ -23,7 +23,7 @@ public class PhotoCategory {
     }
 
     public void addPhoto(Photo photo) {
-        _photosList.add(photo);
+        _photosList.add(0, photo);
     }
 
     public ArrayList<Photo> get_photosList() {
