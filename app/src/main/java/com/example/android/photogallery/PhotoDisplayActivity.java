@@ -186,4 +186,3 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     }
 }
 
-
