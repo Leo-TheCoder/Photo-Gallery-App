@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 
 import androidx.biometric.BiometricManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
@@ -54,14 +55,9 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
         //SET DEFAULT SWITCH VALUE
         switchFingerPrint.setChecked(sharedPref.getBoolean(KEY_FINGERPRINT,false));
 
-        registerActivityLifecycleCallbacks(this);
-
         linPinCode.setOnClickListener(this);
         linNone.setOnClickListener(this);
         switchFingerPrint.setOnClickListener(this);
-    }
-
-    private void registerActivityLifecycleCallbacks(LockTypeActivity lockTypeActivity) {
     }
 
     @Override
@@ -74,17 +70,8 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
                 break;
             case LOCK_REQUEST_CODE:
                 if (!data.getBooleanExtra("MESSAGE",false)) {
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            Log.i("Tag", "Access fail!!! Quitting!!!");
 
-                        }
-                    };
                     Toast.makeText(this,"Access fail!!! Quitting!!!",Toast.LENGTH_LONG).show();
-                    Handler handler = new android.os.Handler();
-                    handler.postDelayed(runnable, 1000);
-
-                    handler.removeCallbacks(runnable);
                     finish();
                 } else {
                     if (data.hasExtra("SET")){
@@ -102,9 +89,9 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
     }
 
     void sendSetLockIntent(){
-        /*Intent setLockIntent = new Intent(this, PinLockActivity.class);
-        setLockIntent.putExtra(PinLockActivity.KEY_SET,true);
-        startActivityForResult(setLockIntent,LOCK_REQUEST_CODE);*/
+        Intent setLockIntent = new Intent(this, LockActivity.class);
+        setLockIntent.putExtra(LockActivity.KEY_SET,true);
+        startActivityForResult(setLockIntent,LOCK_REQUEST_CODE);
     }
 
     @Override
