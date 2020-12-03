@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.biometric.BiometricManager;
+
+import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -29,6 +32,8 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
     private static final int LOCK_REQUEST_CODE = 2;
 
     LinearLayout linPinCode,linFingerPrint,linNone;
+
+    ImageButton btnBackLockType;
 
     boolean isPinCodeEnabled;
 
@@ -48,6 +53,7 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
         linNone = (LinearLayout)findViewById(R.id.linNone);
 
         switchFingerPrint = (SwitchMaterial) findViewById(R.id.switchFingerPrint);
+        btnBackLockType = (ImageButton)findViewById(R.id.btnBackLockType);
 
         sharedPref = getSharedPreferences(SHARE_PREFERENCES,MODE_PRIVATE);
         isPinCodeEnabled = sharedPref.getBoolean(KEY_PIN_CODE,false);
@@ -58,6 +64,7 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
         linPinCode.setOnClickListener(this);
         linNone.setOnClickListener(this);
         switchFingerPrint.setOnClickListener(this);
+        btnBackLockType.setOnClickListener(this);
     }
 
     @Override
@@ -136,6 +143,8 @@ public class LockTypeActivity extends AppCompatActivity  implements View.OnClick
             }
             editor.apply();
             Toast.makeText(this,"Fingerprint is set successfully!!!",Toast.LENGTH_LONG).show();
+        } else {
+            finish();
         }
     }
 }
