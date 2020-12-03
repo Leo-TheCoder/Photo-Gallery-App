@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-public class ImageActivity extends AppCompatActivity {
+public class PhotoDisplayActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
