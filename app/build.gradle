@@ -8,6 +8,7 @@ android {
         applicationId "com.example.android.photogallery"
 
         minSdkVersion 23
+
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
