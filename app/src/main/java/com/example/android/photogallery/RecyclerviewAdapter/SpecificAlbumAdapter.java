@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.android.photogallery.ImageActivity;
+import com.example.android.photogallery.PhotoDisplayActivity;
 import com.example.android.photogallery.Photo;
 import com.example.android.photogallery.R;
 
@@ -110,7 +110,7 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("listPhoto", _photosList);
                 bundle.putInt("position", position);
-                Intent callImageActivity = new Intent(mContext, ImageActivity.class);
+                Intent callImageActivity = new Intent(mContext, PhotoDisplayActivity.class);
                 callImageActivity.putExtras(bundle);
                 mContext.startActivity(callImageActivity);
             }

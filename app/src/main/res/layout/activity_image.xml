@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ImageActivity">
+    tools:context=".PhotoDisplayActivity">
     <com.example.android.photogallery.TouchImageView
         android:id="@+id/show_main_photo"
         android:layout_width="match_parent"
