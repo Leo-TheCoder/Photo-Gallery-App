@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.android.photogallery.CachingImage.MemoryCache;
+import com.example.android.photogallery.CachingImage.MyHandler;
 import com.example.android.photogallery.PhotoDisplayActivity;
 import com.example.android.photogallery.Photo;
 import com.example.android.photogallery.R;
@@ -90,14 +92,16 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
         // Set photos according to album
         ImageView imageView = holder.photoImageView;
 
-        try {
-            Bitmap thumbnail =
-                    mContext.getContentResolver().loadThumbnail(
-                            currentPhoto.get_imageUri(), new Size(150, 150), null);
-            imageView.setImageBitmap(thumbnail);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Bitmap thumbnail =
+//                    mContext.getContentResolver().loadThumbnail(
+//                            currentPhoto.get_imageUri(), new Size(150, 150), null);
+//            imageView.setImageBitmap(thumbnail);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
+
 
         /**
          * Set listener for a specific photo in that album

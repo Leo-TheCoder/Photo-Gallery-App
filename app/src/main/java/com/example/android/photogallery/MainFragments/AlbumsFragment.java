@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,9 @@ public class AlbumsFragment extends Fragment {
     private String mParam2;
     private static AlbumsAdapter mAlbumAdapter;
     private RecyclerView albumRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private final String KEY_STATE_ALBUMS_PHOTO_RECYCLERVIEW = "albumsRecyclerView";
+    private Parcelable mState;
 
     public AlbumsFragment() {
         // Required empty public constructor
@@ -80,6 +84,29 @@ public class AlbumsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         albumRecyclerView = (RecyclerView) view.findViewById(R.id.album_recyclerview);
         albumRecyclerView.setAdapter(mAlbumAdapter);
-        albumRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        albumRecyclerView.setLayoutManager(mLayoutManager);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mState = mLayoutManager.onSaveInstanceState();
+        outState.putParcelable(KEY_STATE_ALBUMS_PHOTO_RECYCLERVIEW, mState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null)
+            mState = savedInstanceState.getParcelable(KEY_STATE_ALBUMS_PHOTO_RECYCLERVIEW);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // Retrieve list state and list/item positions
+        if(savedInstanceState != null)
+            mState = savedInstanceState.getParcelable(KEY_STATE_ALBUMS_PHOTO_RECYCLERVIEW);
     }
 }

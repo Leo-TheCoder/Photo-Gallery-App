@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.photogallery.AlbumActivity;
+import com.example.android.photogallery.CachingImage.MemoryCache;
+import com.example.android.photogallery.CachingImage.MyHandler;
 import com.example.android.photogallery.Photo;
 import com.example.android.photogallery.PhotoCategory;
 import com.example.android.photogallery.R;
@@ -130,15 +132,17 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             }
 
             Photo currentPhoto = currentPhotoList.get(i);
-            try {
-                Bitmap thumbnail =
-                        mContext.getContentResolver().loadThumbnail(
-                                currentPhoto.get_imageUri(), new Size(200, 200), null);
-                imageList.get(i).setImageBitmap(thumbnail);
-                //imageList.get(i).setImageBitmap(Bitmap.createScaledBitmap(thumbnail, 200, 200, false));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ImageView imageView = imageList.get(i);
+//            try {
+//                Bitmap thumbnail =
+//                        mContext.getContentResolver().loadThumbnail(
+//                                currentPhoto.get_imageUri(), new Size(200, 200), null);
+//                imageList.get(i).setImageBitmap(thumbnail);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+            MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
+
         }
 
 
