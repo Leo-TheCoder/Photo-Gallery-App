@@ -8,8 +8,10 @@ import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 import androidx.security.crypto.MasterKeys;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -33,7 +35,7 @@ public class LockActivity extends AppCompatActivity {
     private static final int MAX_ATTEMPTS = 5;
     private static final String KEY_MESSAGE = "MESSAGE";
     private static final String APP_PREFERENCES = "secret_shared_prefs";
-    private static final int KEY_SIZE = 5;
+    private static final int KEY_SIZE = 256;
 
     private Executor executor;
     private BiometricPrompt biometricPrompt;
@@ -42,7 +44,7 @@ public class LockActivity extends AppCompatActivity {
     EditText editTextInput;
     Button btnDone, btnFingerprint;
     TextView textViewLabel;
-    boolean isSet, reType = false;
+    boolean isSet, reType = false,isCompleted = false;
 
     String firstPin = "";
 
@@ -113,6 +115,24 @@ public class LockActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();if (isSet){
+            if (!isCompleted)
+                onSetUpFail();
+        } else {
+            onPinCodeFail();
+        }
+    }
+
+    void onSetUpFail(){
+        Intent returnResult = new Intent();
+        returnResult.putExtra(KEY_MESSAGE, true);
+        returnResult.putExtra(KEY_SET,"Pin Code set up fail !!!");
+        setResult(Activity.RESULT_CANCELED, returnResult);
+        finish();
+    }
+
     /**
      * handle if user want to set a new pin code
      */
@@ -136,7 +156,8 @@ public class LockActivity extends AppCompatActivity {
         Intent returnResult = new Intent();
         returnResult.putExtra(KEY_MESSAGE, true);
         returnResult.putExtra(KEY_SET, "Pin Code Set Completed !!!");
-        setResult(5, returnResult);
+        setResult(Activity.RESULT_OK, returnResult);
+        isCompleted = true;
         finish();
     }
 
@@ -146,7 +167,7 @@ public class LockActivity extends AppCompatActivity {
     void onSuccess() {
         Intent returnResult = new Intent();
         returnResult.putExtra(KEY_MESSAGE, true);
-        setResult(5, returnResult);
+        setResult(Activity.RESULT_OK, returnResult);
         finish();
     }
 
@@ -158,7 +179,7 @@ public class LockActivity extends AppCompatActivity {
         if (attempts == MAX_ATTEMPTS) {
             Intent returnResult = new Intent();
             returnResult.putExtra(KEY_MESSAGE, false);
-            setResult(5, returnResult);
+            setResult(Activity.RESULT_CANCELED, returnResult);
             finish();
         }
     }
