@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -31,12 +32,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     private boolean settingPop = true;
 
     ImageButton btnShare, btnMore;
-    ImageView imageDisplay;
-
+    TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
+
 
     static Uri photoUri;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,50 +51,45 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         int position = bundle.getInt("position");
 
-        TouchImageView myImageView = (TouchImageView) findViewById(R.id.show_main_photo);
-
-
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
-        imageDisplay = (ImageView) findViewById(R.id.show_main_photo);
+        imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
+
 
         btnShare.setOnClickListener(this);
 
         photoUri = myPhotoList.get(position).get_imageUri();
-        myImageView.setImageURI(photoUri);
+        imageDisplay.setImageURI(photoUri);
 
-//        imageDisplay.setOnTouchListener(new View.OnTouchListener() {
-//            @SuppressLint("ClickableViewAccessibility")
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                if (!settingPop) {
-//                    linearTopNav.setVisibility(View.VISIBLE);
-//                    linearBottomSetting.setVisibility(View.VISIBLE);
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                        getWindow().getInsetsController().show(WindowInsets.Type.statusBars());
-//                    } else {
-//                        getWindow().clearFlags(
-//                                WindowManager.LayoutParams.FLAG_FULLSCREEN
-//                        );
-//                    }
-//                } else {
-//                    linearTopNav.setVisibility(View.INVISIBLE);
-//                    linearBottomSetting.setVisibility(View.INVISIBLE);
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                        getWindow().getInsetsController().hide(WindowInsets.Type.statusBars());
-//                        Log.v("Tag", "Hi em");
-//                    } else {
-//                        getWindow().addFlags(
-//                                WindowManager.LayoutParams.FLAG_FULLSCREEN
-//                        );
-//                    }
-//                }
-//                settingPop = !settingPop;
-//                return false;
-//            }
-//        });
+       imageDisplay.setOnClickListener(new View.OnClickListener() {
+           @Override
+            public void onClick(View view) {
+                if (!settingPop) {
+                    linearTopNav.setVisibility(View.VISIBLE);
+                    linearBottomSetting.setVisibility(View.VISIBLE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        getWindow().getInsetsController().show(WindowInsets.Type.statusBars());
+                    } else {
+                        getWindow().clearFlags(
+                                WindowManager.LayoutParams.FLAG_FULLSCREEN
+                        );
+                    }
+                } else {
+                    linearTopNav.setVisibility(View.INVISIBLE);
+                    linearBottomSetting.setVisibility(View.INVISIBLE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        getWindow().getInsetsController().hide(WindowInsets.Type.statusBars());
+                        Log.v("Tag", "Hi em");
+                    } else {
+                        getWindow().addFlags(
+                                WindowManager.LayoutParams.FLAG_FULLSCREEN
+                        );
+                    }
+                }
+                settingPop = !settingPop;            }
+        });
         btnMore.setOnClickListener(this);
     }
 
