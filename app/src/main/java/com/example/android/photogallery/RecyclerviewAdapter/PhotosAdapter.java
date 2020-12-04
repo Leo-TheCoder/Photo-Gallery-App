@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.android.photogallery.CachingImage.MemoryCache;
+import com.example.android.photogallery.CachingImage.MyHandler;
 import com.example.android.photogallery.PhotoDisplayActivity;
 import com.example.android.photogallery.Photo;
 import com.example.android.photogallery.R;
@@ -102,14 +105,15 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
         // Set item views based on your views and data model
         ImageView imageView =  holder.photoImageView;
 
-        try {
-            Bitmap thumbnail =
-                    mContext.getContentResolver().loadThumbnail(
-                            currentPhoto.get_imageUri(), new Size(150, 150), null);
-            imageView.setImageBitmap(thumbnail);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Bitmap thumbnail =
+//                    mContext.getContentResolver().loadThumbnail(
+//                            currentPhoto.get_imageUri(), new Size(150, 150), null);
+//            imageView.setImageBitmap(thumbnail);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
 
         holder.setItemClickListener(new ItemClickListener() {
             @Override

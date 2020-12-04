@@ -3,16 +3,28 @@ package com.example.android.photogallery;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.os.HandlerCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Parcelable;
+import android.util.Log;
+import android.util.LruCache;
+import android.util.Size;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 
 
@@ -24,16 +36,20 @@ import android.widget.Button;
 import android.widget.PopupMenu;
 
 import com.example.android.photogallery.Animation.ZoomOutPageTransformer;
+import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.MainFragments.MainUIAdapter;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
 import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,26 +62,28 @@ public class MainActivity extends AppCompatActivity {
     private MainUIAdapter myAdapter;
 
     private ImageButton btnMenuList;
+    private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
+    private final String KEY_LIST_PHOTOS = "keyList";
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myPhotoList = PhotoLoader.getImagesFromExternal();
+        if(myPhotoList.size() == 0) {
+            PhotoLoader.externalStoragePermissionCheck(this);
+            PhotoLoader.getAllImageFromExternal(this);
+            myPhotoList = PhotoLoader.getImagesFromExternal();
+        }
         setContentView(R.layout.activity_main);
 
-
-
+        MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
 
-        PhotoLoader.externalStoragePermissionCheck(this);
-
-        PhotoLoader.getAllImageFromExternal(this);
-
-        //RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview_photo_all);
         final PhotoCategoryAdapter photoDateAdapter = new PhotoCategoryAdapter(this);
         final AlbumsAdapter photoBucketAdapter = new AlbumsAdapter(this);
 
-        ArrayList<Photo> myPhotoList = PhotoLoader.getImagesFromExternal();
+
         for(int i = 0; i < myPhotoList.size(); i++) {
             try {
                 photoDateAdapter.addOnePhoto(myPhotoList.get(i), PhotoCategory.CATEGORY_DATE);
@@ -139,4 +157,5 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
     }
+
 }
