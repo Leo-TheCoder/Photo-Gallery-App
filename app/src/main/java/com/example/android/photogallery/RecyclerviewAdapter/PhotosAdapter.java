@@ -2,12 +2,9 @@ package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.CachingImage.MyHandler;
 import com.example.android.photogallery.PhotoDisplayActivity;
-import com.example.android.photogallery.Photo;
+import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.R;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {

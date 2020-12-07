@@ -13,16 +13,16 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.example.android.photogallery.Models.Photo;
+import com.example.android.photogallery.Models.TouchImageView;
 
 import java.util.ArrayList;
 

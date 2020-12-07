@@ -1,4 +1,4 @@
-package com.example.android.photogallery;
+package com.example.android.photogallery.Utils;
 
 import android.Manifest;
 import android.app.Activity;
@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.CpuUsageInfo;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -15,13 +14,12 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.text.SimpleDateFormat;
+import com.example.android.photogallery.Models.Photo;
+
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
-public class PhotoLoader {
+public class PhotoUtils {
     //region const, static variables
     private static final String LOG_TAG = "Photo Loader: ";
 

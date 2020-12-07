@@ -2,9 +2,7 @@ package com.example.android.photogallery;
 
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.RecyclerviewAdapter.SpecificAlbumAdapter;
 
 import java.util.ArrayList;

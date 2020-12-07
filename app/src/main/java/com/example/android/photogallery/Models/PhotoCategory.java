@@ -1,4 +1,4 @@
-package com.example.android.photogallery;
+package com.example.android.photogallery.Models;
 
 import android.content.Context;
 

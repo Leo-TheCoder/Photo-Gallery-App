@@ -1,4 +1,4 @@
-package com.example.android.photogallery;
+package com.example.android.photogallery.Models;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

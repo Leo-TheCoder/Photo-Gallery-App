@@ -3,53 +3,33 @@ package com.example.android.photogallery;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.os.HandlerCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.content.Context;
 import android.content.Intent;
 
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Parcelable;
-import android.util.Log;
-import android.util.LruCache;
-import android.util.Size;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 
-
-import android.os.Build;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.PopupMenu;
 
 import com.example.android.photogallery.Animation.ZoomOutPageTransformer;
 import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.MainFragments.MainUIAdapter;
+import com.example.android.photogallery.Models.Photo;
+import com.example.android.photogallery.Models.PhotoCategory;
+import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
 import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myPhotoList = PhotoLoader.getImagesFromExternal();
+        myPhotoList = PhotoUtils.getImagesFromExternal();
         if(myPhotoList.size() == 0) {
-            PhotoLoader.externalStoragePermissionCheck(this);
-            PhotoLoader.getAllImageFromExternal(this);
-            myPhotoList = PhotoLoader.getImagesFromExternal();
+            PhotoUtils.externalStoragePermissionCheck(this);
+            PhotoUtils.getAllImageFromExternal(this);
+            myPhotoList = PhotoUtils.getImagesFromExternal();
         }
         setContentView(R.layout.activity_main);
 

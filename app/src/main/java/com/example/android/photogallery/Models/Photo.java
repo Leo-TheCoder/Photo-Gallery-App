@@ -1,16 +1,13 @@
-package com.example.android.photogallery;
+package com.example.android.photogallery.Models;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.example.android.photogallery.MainActivity;
+
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.logging.SimpleFormatter;
 
 public class Photo implements Parcelable {
     private String _bucket;

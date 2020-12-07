@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.photogallery.MainActivity;
-import com.example.android.photogallery.Photo;
-import com.example.android.photogallery.PhotoCategory;
+import com.example.android.photogallery.Models.Photo;
+import com.example.android.photogallery.Models.PhotoCategory;
 import com.example.android.photogallery.R;
 
 import java.text.ParseException;

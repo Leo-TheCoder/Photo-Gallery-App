@@ -20,6 +20,7 @@
         <activity android:name=".LockTypeActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".PhotoDisplayActivity" />
+
         <activity
             android:name=".SplashScreenActivity"
             android:theme="@style/SplashscreenTheme">
@@ -29,6 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:theme="@style/MainTheme"/>

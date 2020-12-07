@@ -51,7 +51,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <com.example.android.photogallery.TouchImageView
+    <com.example.android.photogallery.Models.TouchImageView
         android:id="@+id/show_main_photo"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
