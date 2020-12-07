@@ -1,7 +1,5 @@
-package com.example.android.photogallery.MainFragments;
+package com.example.android.photogallery.Fragments;
 
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Parcelable;
-import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +22,6 @@ import com.example.android.photogallery.R;
  * create an instance of this fragment.
  */
 public class PhotosFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private static PhotoCategoryAdapter mDatePhotoCategoryAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private final String KEY_STATE_DATE_PHOTO_RECYCLERVIEW = "dateRecyclerView";
@@ -48,17 +36,6 @@ public class PhotosFragment extends Fragment {
 
     public PhotosFragment(PhotoCategoryAdapter myAdapter) {
         mDatePhotoCategoryAdapter = myAdapter;
-    }
-    /**
-     *
-     * @param photoCategoryAdapter
-     *
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PhotosFragment newInstance(PhotoCategoryAdapter photoCategoryAdapter) {
-        PhotosFragment fragment = new PhotosFragment();
-        mDatePhotoCategoryAdapter = photoCategoryAdapter;
-        return fragment;
     }
 
     @Override

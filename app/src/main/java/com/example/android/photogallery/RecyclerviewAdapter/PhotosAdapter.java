@@ -83,10 +83,8 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
         // Inflate the custom layout
         View contactView = inflater.inflate(R.layout.photo_item, parent, false);
-
         // Return a new holder instance
         ViewHolder viewHolder = new ViewHolder(contactView);
         return viewHolder;
@@ -101,14 +99,7 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
         // Set item views based on your views and data model
         ImageView imageView =  holder.photoImageView;
 
-//        try {
-//            Bitmap thumbnail =
-//                    mContext.getContentResolver().loadThumbnail(
-//                            currentPhoto.get_imageUri(), new Size(150, 150), null);
-//            imageView.setImageBitmap(thumbnail);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        //Load image to show
         MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
 
         holder.setItemClickListener(new ItemClickListener() {
@@ -124,8 +115,6 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
                 mContext.startActivity(callImageActivity);
             }
         });
-
-
     }
 
 

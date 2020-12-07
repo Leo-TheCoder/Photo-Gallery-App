@@ -65,18 +65,14 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
     public PhotoCategoryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
         // Inflate the custom layout
         View contactView = inflater.inflate(R.layout.recylerview_photo_item, parent, false);
-
         // Return a new holder instance
         PhotoCategoryAdapter.ViewHolder viewHolder = new PhotoCategoryAdapter.ViewHolder(contactView);
-
         // Create a layout manager
         // to assign a layout
         // to the RecyclerView.
-        // Here we have assigned the layout
-        // as LinearLayout with vertical orientation
+        // Here we have assigned the layout as GridLayout with 3 columns
         layoutManager = new GridLayoutManager(
                 parent.getContext(), 3);
         layoutManager.setInitialPrefetchItemCount(100);
@@ -85,8 +81,6 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
         // layout manager and RecyclerViewPool
         viewHolder.recyclerView.setLayoutManager(layoutManager);
         viewHolder.recyclerView.setHasFixedSize(false);
-
-
         return viewHolder;
     }
 
@@ -96,29 +90,19 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
         PhotoCategory currentPhotoCategory = getItem(position);
 
         // Set item views based on your views and data model
-
-
         TextView titleDate = holder.title;
         RecyclerView photosList = holder.recyclerView;
-
-        //String format = "MM-dd-yyyy HH:mm:ss";
-        //SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.ENGLISH);
-        //String dateTime = formatter.format(new Date(Long.parseLong(currentPhotoCategory.get_title())));
-
         titleDate.setText(currentPhotoCategory.get_title());
 
         // Since this is a nested layout, so to define how many child items
         // should be prefetched when the child RecyclerView is nested
         // inside the parent RecyclerView, we use the following method
-
         PhotosAdapter photosAdapter = new PhotosAdapter(mContext);
         photosAdapter.addMorePhoto(currentPhotoCategory.get_photosList());
         layoutManager.setInitialPrefetchItemCount(
                 currentPhotoCategory.get_photosList().size());
         holder.recyclerView.setAdapter(photosAdapter);
         holder.recyclerView.setRecycledViewPool(viewPool);
-        //
-
     }
 
     public void addMorePhotoCategory(List<PhotoCategory> newPhotoCategory) {

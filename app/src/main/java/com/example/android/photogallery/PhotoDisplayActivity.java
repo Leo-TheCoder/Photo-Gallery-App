@@ -22,7 +22,6 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.android.photogallery.Models.Photo;
-import com.example.android.photogallery.Models.TouchImageView;
 
 import java.util.ArrayList;
 

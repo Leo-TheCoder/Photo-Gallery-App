@@ -1,4 +1,4 @@
-package com.example.android.photogallery.MainFragments;
+package com.example.android.photogallery.Fragments;
 
 import android.util.Log;
 
@@ -17,37 +17,19 @@ public class MainUIAdapter extends FragmentStateAdapter {
     private static PhotoCategoryAdapter mPhotosDateAdapter;
     private static AlbumsAdapter mAlbumsAdapter;
 
-
-    public MainUIAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-        super(fragmentManager, lifecycle);
-    }
-
-
-    public MainUIAdapter(@NonNull Fragment fragment) {
-        super(fragment);
-    }
-
     public MainUIAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
-
     public void setNumOfTab(int numOfTab) {
         this.mNumOfTab = numOfTab;
     }
-
-    public void setPhotosDateAdapter(final PhotoCategoryAdapter adapter) {
-
-        mPhotosDateAdapter = adapter;
-    }
-
+    public void setPhotosDateAdapter(final PhotoCategoryAdapter adapter) { mPhotosDateAdapter = adapter; }
     public void setPhotosBucketAdapter(final AlbumsAdapter adapter) {
         mAlbumsAdapter = adapter;
     }
-
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        Log.i("TEST", "createFragment: " + position);
         if(position == 0) {
 
             return new PhotosFragment(mPhotosDateAdapter);
@@ -59,7 +41,6 @@ public class MainUIAdapter extends FragmentStateAdapter {
             return null;
         }
     }
-
     @Override
     public int getItemCount() {
         return mNumOfTab;

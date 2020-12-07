@@ -43,6 +43,7 @@
 
     <style name="SplashscreenTheme" parent ="Theme.AppCompat.Light.NoActionBar">
         <item name = "android:windowBackground">@drawable/bg_splashscreen</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.example.android.photogallery.MainFragments;
+package com.example.android.photogallery.Fragments;
 
 import android.os.Bundle;
 
@@ -45,31 +45,9 @@ public class AlbumsFragment extends Fragment {
         mAlbumAdapter = albumsAdapter;
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param albumsAdapter get albumsAdapter.
-     * @return A new instance of fragment AlbumsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AlbumsFragment newInstance(AlbumsAdapter albumsAdapter) {
-        AlbumsFragment fragment = new AlbumsFragment();
-        mAlbumAdapter = albumsAdapter;
-        return fragment;
-    }
-
-    /**
-     * This function is not used :)
-     * @param savedInstanceState
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override

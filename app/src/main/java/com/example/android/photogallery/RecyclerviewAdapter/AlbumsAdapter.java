@@ -82,13 +82,13 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             }
         }
         if (flag == false) {
-            PhotoCategory newPhotoDate = new PhotoCategory(
+            PhotoCategory newPhotoAlbum = new PhotoCategory(
                     PhotoCategory.CATEGORY_BUCKET,
                     photoTitle,
                     new ArrayList<Photo>(),
                     mContext);
-            newPhotoDate.addPhoto(newPhoto);
-            mPhotoCategoryList.add(newPhotoDate);
+            newPhotoAlbum.addPhoto(newPhoto);
+            mPhotoCategoryList.add(newPhotoAlbum);
             submitList(mPhotoCategoryList);
         }
     }
@@ -130,36 +130,19 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
 
             Photo currentPhoto = currentPhotoList.get(i);
             ImageView imageView = imageList.get(i);
-//            try {
-//                Bitmap thumbnail =
-//                        mContext.getContentResolver().loadThumbnail(
-//                                currentPhoto.get_imageUri(), new Size(200, 200), null);
-//                imageList.get(i).setImageBitmap(thumbnail);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+
             MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
-
         }
-
-
-
         holder.setAlbumClickListener(new AlbumClickListener() {
             @Override
             public void onClick(View view) {
-
-                Log.i("TEST CLICK ALBUM", " ");
-
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("albumPhotoList", currentPhotoList);
                 bundle.putString("albumName", title);
                 bundle.putInt("albumNumberofPhotos", Integer.valueOf(numberOfPhotos));
-
                 Intent callAlbumActivity = new Intent(mContext, AlbumActivity.class);
                 callAlbumActivity.putExtras(bundle);
-
                 mContext.startActivity(callAlbumActivity);
-
             }
         });
     }

@@ -17,7 +17,7 @@ import android.widget.PopupMenu;
 
 import com.example.android.photogallery.Animation.ZoomOutPageTransformer;
 import com.example.android.photogallery.CachingImage.MemoryCache;
-import com.example.android.photogallery.MainFragments.MainUIAdapter;
+import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
 import com.example.android.photogallery.Utils.PhotoUtils;
@@ -49,9 +49,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Get photos from system
+        //...
+        PhotoUtils.externalStoragePermissionCheck(this);
         myPhotoList = PhotoUtils.getImagesFromExternal();
         if(myPhotoList.size() == 0) {
-            PhotoUtils.externalStoragePermissionCheck(this);
+
             PhotoUtils.getAllImageFromExternal(this);
             myPhotoList = PhotoUtils.getImagesFromExternal();
         }
@@ -63,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
         final PhotoCategoryAdapter photoDateAdapter = new PhotoCategoryAdapter(this);
         final AlbumsAdapter photoBucketAdapter = new AlbumsAdapter(this);
 
-
+        //Initialize 2 adapter for recycler view
+        //....
         for(int i = 0; i < myPhotoList.size(); i++) {
             try {
                 photoDateAdapter.addOnePhoto(myPhotoList.get(i), PhotoCategory.CATEGORY_DATE);
@@ -73,21 +77,23 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-//        recyclerView.setAdapter(photoDateAdapter);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //Call an adapter which contains 2 fragments (Photos, Albums)
         myAdapter = new MainUIAdapter(this);
-
+        //Set number of elements we want to show in viewpager
         myAdapter.setNumOfTab(PAGE_NUMBER);
-        myAdapter.setPhotosDateAdapter(photoDateAdapter);
-        myAdapter.setPhotosBucketAdapter(photoBucketAdapter);
+        //Each fragment contains recyclerview which needs adapter to display data
+        //Get adapters for each fragment
+        myAdapter.setPhotosDateAdapter(photoDateAdapter);       //Adapter for Photos fragment
+        myAdapter.setPhotosBucketAdapter(photoBucketAdapter);   //Adapter for Albums fragment
 
-
+        //Initialize viewpager with our custom adapter
         viewPager = (ViewPager2) findViewById(R.id.viewpager);
         viewPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
         viewPager.setAdapter(myAdapter);
         viewPager.setOffscreenPageLimit(2);
-        viewPager.setPageTransformer(new ZoomOutPageTransformer());
+        viewPager.setPageTransformer(new ZoomOutPageTransformer()); //Animation when transfer page
 
+        //Initialize tab layout for our viewpager
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         new TabLayoutMediator(tabLayout, viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
@@ -95,10 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 tab.setText(tabTitle[position]);
             }
         }).attach();
-
-//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//        ft.replace(R.id.testFragment, PhotosFragment.newInstance(photoDateAdapter)); ft.commit();
-
         btnMenuList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
