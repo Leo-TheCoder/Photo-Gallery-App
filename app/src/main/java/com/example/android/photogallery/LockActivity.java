@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class LockActivity extends AppCompatActivity {
     public static final String KEY_PIN_CODE = "PIN_CODE";
     public static final String KEY_SET = "SET";
     public static final String KEY_PASSWORD = "PASSWORD";
+    public static final String KEY_FINGERPRINT = "FINGERPRINT";
     private static final int MAX_ATTEMPTS = 5;
     private static final String KEY_MESSAGE = "MESSAGE";
     private static final String APP_PREFERENCES = "secret_shared_prefs";
@@ -69,9 +71,10 @@ public class LockActivity extends AppCompatActivity {
         Intent receiveIntent = getIntent();
         isSet = receiveIntent.getBooleanExtra(KEY_SET, false);
 
-        if (isSet) {
-            btnFingerprint.setVisibility(View.GONE);
-        } else {
+        Log.e("TAG","co set k " + isSet);
+
+        btnFingerprint.setVisibility(View.GONE);
+        if (!isSet && sharedPreferences.getBoolean(KEY_FINGERPRINT,false)) {
             btnFingerprint.setVisibility(View.VISIBLE);
         }
 
@@ -82,7 +85,11 @@ public class LockActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (isSet) {
                     if (!reType) {
-                        setPinCode();
+                        if (editTextInput.getText().toString().length() < 4) {
+                            Toast.makeText(LockActivity.this, "Password's length must be >= 4", Toast.LENGTH_SHORT).show();
+                        } else {
+                            setPinCode();
+                        }
                     } else {
                         if (editTextInput.getText().toString().equals(firstPin)) {
                             onSetPinCodeCompleted();
@@ -92,8 +99,10 @@ public class LockActivity extends AppCompatActivity {
                     }
                 } else {
                     String pinCode = password.getString(KEY_PASSWORD, "");
+                    Log.e("taG",editTextInput.getText().toString() + " " + pinCode);
                     if (editTextInput.getText().toString().equals(pinCode)) {
                         //success
+
                         onSuccess();
                     } else {
                         // fail
@@ -150,7 +159,7 @@ public class LockActivity extends AppCompatActivity {
         SharedPreferences.Editor passEditor = password.edit();
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_PIN_CODE, true);
-        passEditor.putString(KEY_PIN_CODE, editTextInput.getText().toString());
+        passEditor.putString(KEY_PASSWORD, firstPin);
         editor.apply();
         passEditor.apply();
         Intent returnResult = new Intent();
@@ -158,6 +167,7 @@ public class LockActivity extends AppCompatActivity {
         returnResult.putExtra(KEY_SET, "Pin Code Set Completed !!!");
         setResult(Activity.RESULT_OK, returnResult);
         isCompleted = true;
+        Log.e("taG",editTextInput.getText().toString() + " " + firstPin);
         finish();
     }
 
@@ -177,10 +187,24 @@ public class LockActivity extends AppCompatActivity {
     void onPinCodeFail() {
         Toast.makeText(this, "Wrong pin code !!! Try again !!!", Toast.LENGTH_SHORT).show();
         if (attempts == MAX_ATTEMPTS) {
-            Intent returnResult = new Intent();
-            returnResult.putExtra(KEY_MESSAGE, false);
-            setResult(Activity.RESULT_CANCELED, returnResult);
-            finish();
+            btnDone.setEnabled(false);
+            btnFingerprint.setEnabled(false);
+            editTextInput.setEnabled(false);
+            CountDownTimer countDownTimer = new CountDownTimer(30000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    Toast.makeText(LockActivity.this, "Limits amount !!! Retry in " + millisUntilFinished/1000+ "  seconds", Toast.LENGTH_SHORT).show();
+                    //here you can have your logic to set text to edittext
+                }
+
+                public void onFinish() {
+                    Toast.makeText(LockActivity.this, "Done", Toast.LENGTH_SHORT).show();
+                    btnDone.setEnabled(true);
+                    btnFingerprint.setEnabled(true);
+                    editTextInput.setEnabled(true);
+                }
+
+            }.start();
         }
     }
 

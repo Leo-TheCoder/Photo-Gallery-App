@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.util.concurrent.locks.Lock;
+
 import static android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG;
 import static android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
@@ -27,7 +29,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
 
     public static final String SHARE_PREFERENCES = "SHARE_PREFERENCES";
     public static final String KEY_PIN_CODE = "PIN_CODE";
-    public static final String KEY_FINGERPRINT = "FINGERPRINT";
+
     private static final int SET_LOCK_REQUEST_CODE = 1;
     private static final int LOCK_REQUEST_CODE = 5;
 
@@ -59,7 +61,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
         isPinCodeEnabled = sharedPref.getBoolean(KEY_PIN_CODE, false);
 
         //SET DEFAULT SWITCH VALUE
-        switchFingerPrint.setChecked(sharedPref.getBoolean(KEY_FINGERPRINT, false));
+        switchFingerPrint.setChecked(sharedPref.getBoolean(LockActivity.KEY_FINGERPRINT, false));
 
         linPinCode.setOnClickListener(this);
         linNone.setOnClickListener(this);
@@ -93,7 +95,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
             BiometricManager biometricManager = BiometricManager.from(this);
             switchFingerPrint.setChecked(!(biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED));
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putBoolean(KEY_FINGERPRINT, switchFingerPrint.isChecked());
+            editor.putBoolean(LockActivity.KEY_FINGERPRINT, switchFingerPrint.isChecked());
             editor.apply();
         }
     }
@@ -111,7 +113,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
         } else if (view.getId() == linNone.getId()) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(KEY_PIN_CODE, false);
-            editor.putBoolean(KEY_FINGERPRINT, false);
+            editor.putBoolean(LockActivity.KEY_FINGERPRINT, false);
             switchFingerPrint.setChecked(false);
             editor.apply();
             Toast.makeText(this, "Security removed !!!", Toast.LENGTH_SHORT).show();
@@ -128,17 +130,17 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
             switch (biometricManager.canAuthenticate()) {
                 case BiometricManager.BIOMETRIC_SUCCESS:
                     Toast.makeText(this, "App can authenticate using biometrics.", Toast.LENGTH_LONG).show();
-                    editor.putBoolean(KEY_FINGERPRINT, switchFingerPrint.isChecked());
+                    editor.putBoolean(LockActivity.KEY_FINGERPRINT, switchFingerPrint.isChecked());
                     break;
                 case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
                     Toast.makeText(this, "No biometric features available on this device.", Toast.LENGTH_LONG).show();
                     switchFingerPrint.setChecked(false);
-                    editor.putBoolean(KEY_FINGERPRINT, switchFingerPrint.isChecked());
+                    editor.putBoolean(LockActivity.KEY_FINGERPRINT, switchFingerPrint.isChecked());
                     break;
                 case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
                     Toast.makeText(this, "Biometric features are currently unavailable.", Toast.LENGTH_LONG).show();
                     switchFingerPrint.setChecked(false);
-                    editor.putBoolean(KEY_FINGERPRINT, switchFingerPrint.isChecked());
+                    editor.putBoolean(LockActivity.KEY_FINGERPRINT, switchFingerPrint.isChecked());
                     break;
                 case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
                     Toast.makeText(this, "You need to set up your device fingerprint to use it here!!!", Toast.LENGTH_LONG).show();

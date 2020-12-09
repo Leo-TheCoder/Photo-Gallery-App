@@ -1,18 +1,22 @@
 package com.example.android.photogallery;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Intent;
 
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 
 import com.example.android.photogallery.Animation.ZoomOutPageTransformer;
@@ -32,10 +36,9 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
-    private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     public final static SimpleDateFormat Formatter = new SimpleDateFormat(Photo.DATE_FORMAT, Locale.ENGLISH);
     public final static int PAGE_NUMBER = 2;
+    public final static int IS_LOCK_REQUEST = 20;
     private CharSequence[] tabTitle = {"PHOTOS", "ALBUM"};
 
     private ViewPager2 viewPager;
@@ -45,9 +48,22 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
     private final String KEY_LIST_PHOTOS = "keyList";
 
+
+
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //check if the app is locked
+
+        if (isLock()){
+            Intent lockIntent = new Intent(this,LockActivity.class);
+            lockIntent.putExtra(LockActivity.KEY_SET,false);
+            startActivityForResult(lockIntent,IS_LOCK_REQUEST);
+        }
+
+
         super.onCreate(savedInstanceState);
         //Get photos from system
         //...
@@ -59,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
             myPhotoList = PhotoUtils.getImagesFromExternal();
         }
         setContentView(R.layout.activity_main);
+
+
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
@@ -109,12 +127,32 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK){
+            finish();
+        }
+
+    }
+
     /**
      * function that navigate user to setting activity
      */
     void navigateToSetting(){
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
+    }
+
+    /**
+     * Check if the app is locked
+     * @return boolean value
+     */
+    boolean isLock() {
+        SharedPreferences sharedPreferences =  getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
+        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE,false);
     }
 
 
