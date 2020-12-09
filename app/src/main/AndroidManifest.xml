@@ -33,8 +33,10 @@
 
         <activity
             android:name=".MainActivity"
-            android:theme="@style/MainTheme"/>
-        <activity android:name=".AlbumActivity" />
+            android:theme="@style/MainTheme"
+            android:windowSoftInputMode="adjustNothing"/>
+        <activity android:name=".AlbumActivity"
+            android:windowSoftInputMode="adjustNothing"/>
 
     </application>
 
