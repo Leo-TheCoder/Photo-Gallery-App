@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/feed_back_grey"/>
+    <item android:drawable="@color/my_app_splash_screen_background"/>
     <item>
         <bitmap
         android:src="@drawable/ic_app"
