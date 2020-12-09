@@ -29,12 +29,13 @@ import java.util.concurrent.locks.Lock;
 
 public class LockActivity extends AppCompatActivity {
     public static final String SHARE_PREFERENCES = "SHARE_PREFERENCES";
+    private static final String APP_PREFERENCES = "secret_shared_prefs";
     public static final String KEY_PIN_CODE = "PIN_CODE";
     public static final String KEY_SET = "SET";
     public static final String KEY_PASSWORD = "PASSWORD";
     private static final int MAX_ATTEMPTS = 5;
     private static final String KEY_MESSAGE = "MESSAGE";
-    private static final String APP_PREFERENCES = "secret_shared_prefs";
+
     private static final int KEY_SIZE = 256;
 
     private Executor executor;
@@ -117,20 +118,16 @@ public class LockActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();if (isSet){
+        super.onBackPressed();
+        if (isSet){
             if (!isCompleted)
                 onSetUpFail();
         } else {
-            onPinCodeFail();
+            Intent returnResult = new Intent();
+            returnResult.putExtra(KEY_MESSAGE, false);
+            setResult(Activity.RESULT_CANCELED, returnResult);
+            finish();
         }
-    }
-
-    void onSetUpFail(){
-        Intent returnResult = new Intent();
-        returnResult.putExtra(KEY_MESSAGE, true);
-        returnResult.putExtra(KEY_SET,"Pin Code set up fail !!!");
-        setResult(Activity.RESULT_CANCELED, returnResult);
-        finish();
     }
 
     /**
@@ -142,6 +139,20 @@ public class LockActivity extends AppCompatActivity {
         editTextInput.setText("");
         reType = true;
     }
+
+
+    /**
+     * handle if set up failed
+     */
+    void onSetUpFail(){
+        Intent returnResult = new Intent();
+        returnResult.putExtra(KEY_MESSAGE, true);
+        returnResult.putExtra(KEY_SET,"Pin Code set up fail !!!");
+        setResult(Activity.RESULT_CANCELED, returnResult);
+        finish();
+    }
+
+
 
     /**
      * handle when the pin code is set completely

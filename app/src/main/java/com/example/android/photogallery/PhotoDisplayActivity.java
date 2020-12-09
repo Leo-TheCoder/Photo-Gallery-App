@@ -7,6 +7,7 @@ import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,7 +32,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore;
+    ImageButton btnShare, btnMore,btnBack,btnDelete;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
@@ -53,12 +54,15 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
+        btnBack = (ImageButton)findViewById(R.id.btnBack);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
 
 
         btnShare.setOnClickListener(this);
+        btnBack.setOnClickListener(this);
+        btnDelete.setOnClickListener(this);
 
         photoUri = myPhotoList.get(position).get_imageUri();
         imageDisplay.setImageURI(photoUri);
@@ -88,7 +92,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                         );
                     }
                 }
-                settingPop = !settingPop;            }
+                settingPop = !settingPop;
+           }
         });
         btnMore.setOnClickListener(this);
     }
@@ -100,6 +105,10 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             startActivity(shareImageIntent);
         } else if (view.getId() == btnMore.getId()) {
             showPopup(view);
+        } else if (view.getId() == btnBack.getId()){
+            finish();
+        } else if (view.getId() == btnBack.getId()){
+
         }
     }
 
@@ -175,7 +184,6 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         else
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
 
-        shareIntent.setType("image/*");
 
 
         shareIntent.putExtra(Intent.EXTRA_STREAM, photoUri);

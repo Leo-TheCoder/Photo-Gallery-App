@@ -28,7 +28,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
     public static final String SHARE_PREFERENCES = "SHARE_PREFERENCES";
     public static final String KEY_PIN_CODE = "PIN_CODE";
     public static final String KEY_FINGERPRINT = "FINGERPRINT";
-    private static final int SET_LOCK_REQUEST_CODE = 1;
+    private static final int SET_BIOMETRIC_REQUEST_CODE = 1;
     private static final int LOCK_REQUEST_CODE = 5;
 
     LinearLayout linPinCode, linFingerPrint, linNone;
@@ -89,7 +89,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
                     }
                 }
             }
-        } else if (requestCode == SET_LOCK_REQUEST_CODE) {
+        } else if (requestCode == SET_BIOMETRIC_REQUEST_CODE) {
             BiometricManager biometricManager = BiometricManager.from(this);
             switchFingerPrint.setChecked(!(biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED));
             SharedPreferences.Editor editor = sharedPref.edit();
@@ -116,6 +116,7 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
             editor.apply();
             Toast.makeText(this, "Security removed !!!", Toast.LENGTH_SHORT).show();
         } else if (view.getId() == switchFingerPrint.getId()) {
+            //if user hasn't set the pass code
             if (!sharedPref.getBoolean(KEY_PIN_CODE,false)){
                 Toast.makeText(this, "You need to set up the pin code to use this features !!!", Toast.LENGTH_SHORT).show();
                 switchFingerPrint.setChecked(false);
@@ -146,12 +147,13 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
                     final Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
                     enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
                             BIOMETRIC_STRONG | DEVICE_CREDENTIAL);
-                    startActivityForResult(enrollIntent, SET_LOCK_REQUEST_CODE);
+                    startActivityForResult(enrollIntent, SET_BIOMETRIC_REQUEST_CODE);
                     return;
             }
             editor.apply();
             Toast.makeText(this, "Fingerprint is set successfully!!!", Toast.LENGTH_LONG).show();
         } else {
+            //user hit back button
             finish();
         }
     }

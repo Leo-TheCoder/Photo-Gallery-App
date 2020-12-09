@@ -26,6 +26,7 @@ public class PhotoLoader {
     private static final String LOG_TAG = "Photo Loader: ";
 
     public static final int READ_EXTERNAL_STORAGE_PERMISSION_CODE = 1000;
+    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE  = 2000;
 
     public static final Uri EXTERNAL_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
@@ -52,6 +53,14 @@ public class PhotoLoader {
             ActivityCompat.requestPermissions(callingActivity,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     READ_EXTERNAL_STORAGE_PERMISSION_CODE);
+        }
+
+        if(ContextCompat.checkSelfPermission(callingActivity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+            //ask for permission
+            ActivityCompat.requestPermissions(callingActivity,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
         }
     }
 
