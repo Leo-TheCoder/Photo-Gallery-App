@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/MainSettingMenuItem"
-        android:title="@string/Settings">
-    </item>
-    <item android:id="@+id/MainCamera"
-        android:title="@string/Camera">
+    <item android:id="@+id/settingMenuItem"
+        android:title="Settings">
     </item>
 </menu>
