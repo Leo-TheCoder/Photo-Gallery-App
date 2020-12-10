@@ -20,6 +20,7 @@
         <activity android:name=".LockTypeActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".PhotoDisplayActivity" />
+        <activity android:name=".EditPhotoActivity"></activity>
 
         <activity
             android:name=".SplashScreenActivity"
