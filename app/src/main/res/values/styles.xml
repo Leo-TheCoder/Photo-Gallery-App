@@ -45,5 +45,4 @@
         <item name = "android:windowBackground">@drawable/bg_splashscreen</item>
         <item name="android:windowFullscreen">true</item>
     </style>
-
 </resources>
