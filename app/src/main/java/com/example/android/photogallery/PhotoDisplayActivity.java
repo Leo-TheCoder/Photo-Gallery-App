@@ -1,12 +1,16 @@
 package com.example.android.photogallery;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,11 +26,12 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.android.photogallery.Models.Photo;
+import com.example.android.photogallery.Utils.BitmapFileUtils;
 
 import java.util.ArrayList;
 
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final int REQUEST_IMAGE_CAPTURE = 1000;
+    private static final int MY_CAMERA_PERMISSION_CODE = 200;
 
     private boolean settingPop = true;
 
@@ -36,6 +41,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
 
     static Uri photoUri;
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -62,8 +68,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         photoUri = myPhotoList.get(position).get_imageUri();
         imageDisplay.setImageURI(photoUri);
 
-       imageDisplay.setOnClickListener(new View.OnClickListener() {
-           @Override
+        imageDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View view) {
                 if (!settingPop) {
                     linearTopNav.setVisibility(View.VISIBLE);
@@ -87,7 +93,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                         );
                     }
                 }
-                settingPop = !settingPop;            }
+                settingPop = !settingPop;
+            }
         });
         btnMore.setOnClickListener(this);
     }
@@ -112,13 +119,15 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.camera:
+                if (menuItem.getItemId() == R.id.photoMenuCamera) {
+                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+                    } else {
                         openCamera();
-                        return true;
-                    default:
-                        return false;
+                    }
+                    return true;
                 }
+                return false;
             }
         });
         popupMenu.inflate(R.menu.photo_menu);
@@ -132,16 +141,24 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
      */
 
     private void openCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        } catch (ActivityNotFoundException e) {
-            // display error state to the user
-            e.printStackTrace();
-        }
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
     }
 
-    
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
 
     /**
@@ -150,8 +167,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Picture captured!!!", Toast.LENGTH_SHORT).show();
+        if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
+            if (data != null) {
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                BitmapFileUtils.saveToExternal(photo, BitmapFileUtils.CAMERA);
+            } else {
+                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
