@@ -257,3 +257,4 @@ local.properties
 .gradle/6.5/fileHashes/fileHashes.bin
 .gradle/6.5/executionHistory/executionHistory.lock
 .gradle/6.5/executionHistory/executionHistory.bin
+.idea/libraries/Gradle__androidx_transition_transition_1_2_0_aar.xml

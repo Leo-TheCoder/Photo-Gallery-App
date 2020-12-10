@@ -1,9 +1,9 @@
 package com.example.android.photogallery;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
@@ -11,12 +11,10 @@ import android.content.Intent;
 
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -29,13 +27,14 @@ import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
-import com.example.android.photogallery.Utils.BitmapFileUtils;
+import com.example.android.photogallery.Utils.FileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
 import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,8 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
     private final String KEY_LIST_PHOTOS = "keyList";
 
-
-
+    String currentPhotoPath;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -65,10 +63,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         //check if the app is locked
 
-        if (isLock()){
-            Intent lockIntent = new Intent(this,LockActivity.class);
-            lockIntent.putExtra(LockActivity.KEY_SET,false);
-            startActivityForResult(lockIntent,IS_LOCK_REQUEST);
+        if (isLock()) {
+            Intent lockIntent = new Intent(this, LockActivity.class);
+            lockIntent.putExtra(LockActivity.KEY_SET, false);
+            startActivityForResult(lockIntent, IS_LOCK_REQUEST);
         }
 
 
@@ -77,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         //...
         PhotoUtils.externalStoragePermissionCheck(this);
         myPhotoList = PhotoUtils.getImagesFromExternal();
-        if(myPhotoList.size() == 0) {
+        if (myPhotoList.size() == 0) {
 
             PhotoUtils.getAllImageFromExternal(this);
             myPhotoList = PhotoUtils.getImagesFromExternal();
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Initialize 2 adapter for recycler view
         //....
-        for(int i = 0; i < myPhotoList.size(); i++) {
+        for (int i = 0; i < myPhotoList.size(); i++) {
             try {
                 photoDateAdapter.addOnePhoto(myPhotoList.get(i), PhotoCategory.CATEGORY_DATE);
                 photoBucketAdapter.addOnePhotoAlbum(myPhotoList.get(i));
@@ -118,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setPageTransformer(new ZoomOutPageTransformer()); //Animation when transfer page
 
         //Initialize tab layout for our viewpager
-        TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         new TabLayoutMediator(tabLayout, viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
@@ -136,40 +134,38 @@ public class MainActivity extends AppCompatActivity {
     /**
      * function that navigate user to setting activity
      */
-    void navigateToSetting(){
+    void navigateToSetting() {
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
     }
 
     /**
      * Check if the app is locked
+     *
      * @return boolean value
      */
     boolean isLock() {
-        SharedPreferences sharedPreferences =  getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
-        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE,false);
+        SharedPreferences sharedPreferences = getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
+        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE, false);
     }
 
 
     /**
      * function that pop up the menu when button More got hit
+     *
      * @param v the view that got hit
      */
-    public void showPopup(View v){
+    public void showPopup(View v) {
         PopupMenu popupMenu = new PopupMenu(this, btnMenuList);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()){
+                switch (menuItem.getItemId()) {
                     case R.id.MainSettingMenuItem:
                         navigateToSetting();
                         return true;
                     case R.id.MainCamera:
-                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-                        } else {
-                            openCamera();
-                        }
+                        openCamera();
                         return true;
                     default:
                         return false;
@@ -179,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
     }
+
     /**
      * function that create an intent to open camera
      *
@@ -186,9 +183,11 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private void openCamera() {
-        Log.e("TAG",getExternalFilesDir(null).toString());
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            dispatchTakePictureIntent();
+        }
     }
 
     @Override
@@ -198,8 +197,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
 
-                openCamera();
-
+                dispatchTakePictureIntent();
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
@@ -214,15 +212,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK){
+        if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK) {
             finish();
         }
 
-        if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
+        if (requestCode == FileUtils.REQUEST_IMAGE_CAPTURE) {
             if (data != null) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
                 try {
-                    BitmapFileUtils.saveImageToStorage(this,photo, BitmapFileUtils.CAMERA);
+                    FileUtils.saveImageCapturedByCameraToStorage(this, FileUtils.CAMERA);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -231,5 +228,29 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = FileUtils.createImageFile(this);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, FileUtils.REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
 
 }
