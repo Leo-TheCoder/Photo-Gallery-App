@@ -214,14 +214,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
-            if (data != null) {
-                try {
-                    BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
+            try {
+                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
+                    Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
+                };
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

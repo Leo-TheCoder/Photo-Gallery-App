@@ -178,17 +178,15 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
-            if (data != null) {
+            if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
                 try {
-                    BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA);
+                    if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
+                        Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
+                    };
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else {
-                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
             }
-        }
     }
 
 
