@@ -6,12 +6,17 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.Manifest;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -24,12 +29,14 @@ import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
+import com.example.android.photogallery.Utils.BitmapFileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
 import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,8 +44,9 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public final static SimpleDateFormat Formatter = new SimpleDateFormat(Photo.DATE_FORMAT, Locale.ENGLISH);
+    private static final int MY_CAMERA_PERMISSION_CODE = 101;
     public final static int PAGE_NUMBER = 2;
-    public final static int IS_LOCK_REQUEST = 20;
+    public final static int IS_LOCK_REQUEST = 100;
     private CharSequence[] tabTitle = {"PHOTOS", "ALBUM"};
 
     private ViewPager2 viewPager;
@@ -75,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
             myPhotoList = PhotoUtils.getImagesFromExternal();
         }
         setContentView(R.layout.activity_main);
-
-
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
@@ -127,17 +133,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK){
-            finish();
-        }
-
-    }
-
     /**
      * function that navigate user to setting activity
      */
@@ -166,8 +161,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()){
-                    case R.id.settingMenuItem:
+                    case R.id.MainSettingMenuItem:
                         navigateToSetting();
+                        return true;
+                    case R.id.MainCamera:
+                        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+                        } else {
+                            openCamera();
+                        }
                         return true;
                     default:
                         return false;
@@ -176,6 +178,58 @@ public class MainActivity extends AppCompatActivity {
         });
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
+    }
+    /**
+     * function that create an intent to open camera
+     *
+     * @no params
+     */
+
+    private void openCamera() {
+        Log.e("TAG",getExternalFilesDir(null).toString());
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+
+                openCamera();
+
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
+    /**
+     * function handle activity result
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK){
+            finish();
+        }
+
+        if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
+            if (data != null) {
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                try {
+                    BitmapFileUtils.saveImageToStorage(this,photo, BitmapFileUtils.CAMERA);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 }

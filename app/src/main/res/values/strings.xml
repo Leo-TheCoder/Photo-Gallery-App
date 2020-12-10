@@ -10,5 +10,8 @@
     </plurals>
 
     <string name="retype_pin_code">Retype Pin Code</string>
+    <string name="Settings">Settings</string>
+    <string name="Camera">Camera</string>
+    <string name="addToAlbum">AddToAlbum</string>
 
 </resources>
