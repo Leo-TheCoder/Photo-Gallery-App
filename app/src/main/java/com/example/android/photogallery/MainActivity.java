@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -35,6 +36,7 @@ import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
             myPhotoList = PhotoUtils.getImagesFromExternal();
         }
         setContentView(R.layout.activity_main);
-
-
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
@@ -186,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private void openCamera() {
+        Log.e("TAG",getExternalFilesDir(null).toString());
         Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
     }
@@ -196,7 +197,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+                openCamera();
 
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
@@ -219,7 +221,11 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
             if (data != null) {
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
-                BitmapFileUtils.saveToExternal(photo, BitmapFileUtils.CAMERA);
+                try {
+                    BitmapFileUtils.saveImageToStorage(this,photo, BitmapFileUtils.CAMERA);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
             }

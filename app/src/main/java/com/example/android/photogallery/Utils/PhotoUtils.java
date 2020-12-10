@@ -95,6 +95,7 @@ public class PhotoUtils {
             do {
                 // Get the field values
                 bucket = cursor.getString(bucketColumn);
+
                 dateTaken = cursor.getLong(dateTakenColumn);
                 dateModif = cursor.getLong(dateModifiedColumn);
                 dateAdded = cursor.getLong(dateAddedColumn);
