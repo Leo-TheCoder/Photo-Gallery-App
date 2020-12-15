@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -93,6 +94,16 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         }
     }
 
+    public boolean removeByUri(Uri uri) {
+        boolean result = false;
+        for(int i = 0; i < mPhotoCategoryList.size(); i++) {
+            result = mPhotoCategoryList.get(i).removeByUri(uri);
+            if(result == true) {
+                break;
+            }
+        }
+        return result;
+    }
 
     @NonNull
     @Override

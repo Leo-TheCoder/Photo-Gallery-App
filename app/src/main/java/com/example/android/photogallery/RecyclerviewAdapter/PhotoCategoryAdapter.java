@@ -1,6 +1,7 @@
 package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -182,6 +183,20 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
             _photoCategoryList.add(newPhotoDate);
             submitList(_photoCategoryList);
         }
+    }
+
+    public boolean removePhotoByUri(Uri uri) {
+        boolean result = false;
+        for(int i = 0; i < _photoCategoryList.size(); i++) {
+            result = _photoCategoryList.get(i).removeByUri(uri);
+            if(result == true) {
+                if(_photoCategoryList.get(i).get_photosList().isEmpty()){
+                    _photoCategoryList.remove(i);
+                }
+                break;
+            }
+        }
+        return result;
     }
 
 

@@ -8,8 +8,11 @@ import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -31,6 +34,7 @@ import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
+import com.example.android.photogallery.Service.MediaTrackerService;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
@@ -57,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton btnMenuList;
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
-    private final String KEY_LIST_PHOTOS = "keyList";
+    private Intent myService;
 
+    private PhotoCategoryAdapter photoDateAdapter = new PhotoCategoryAdapter(this);
+    private AlbumsAdapter photoBucketAdapter = new AlbumsAdapter(this);
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -82,13 +88,19 @@ public class MainActivity extends AppCompatActivity {
             PhotoUtils.getAllImageFromExternal(this);
             myPhotoList = PhotoUtils.getImagesFromExternal();
         }
+
+        myService = new Intent(this, MediaTrackerService.class);
+        startService(myService);
+
+        IntentFilter filter = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE);
+        BroadcastReceiver receiver = new MediaBroadcastReceiver();
+        registerReceiver(receiver, filter);
+
         setContentView(R.layout.activity_main);
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
 
-        final PhotoCategoryAdapter photoDateAdapter = new PhotoCategoryAdapter(this);
-        final AlbumsAdapter photoBucketAdapter = new AlbumsAdapter(this);
 
         //Initialize 2 adapter for recycler view
         //....
@@ -243,6 +255,58 @@ public class MainActivity extends AppCompatActivity {
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    /**
+     * Add one photo to both DateAdapter and AlbumsAdapter
+     * Update UI
+     * @param newPhoto
+     * @throws ParseException
+     */
+    public void addPhoto(Photo newPhoto) throws ParseException {
+        photoDateAdapter.addOnePhoto(newPhoto, PhotoCategory.CATEGORY_DATE);
+        photoBucketAdapter.addOnePhotoAlbum(newPhoto);
+        photoDateAdapter.notifyDataSetChanged();    //Update UI Photos's tab
+        photoBucketAdapter.notifyDataSetChanged();  //Update UI Albums's tab
+    }
+
+    /**
+     * Remove photo by finding its uri
+     * Only update UI when removes successfully
+     * @param uri
+     */
+    public void removePhoto(Uri uri) {
+        boolean result = false;
+        result = photoDateAdapter.removePhotoByUri(uri);
+        result = photoBucketAdapter.removeByUri(uri);
+        if(result == true) {
+            photoDateAdapter.notifyDataSetChanged();
+            photoBucketAdapter.notifyDataSetChanged();
+        }
+    }
+
+    // Broadcast Receiver to receive info whenever there is some changes
+    public class MediaBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            String key = bundle.getString("key");
+
+            if(key.equals("add"))
+            {
+                Photo newPhoto = bundle.getParcelable("photo");
+                try {
+                    addPhoto(newPhoto);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                String uriStr = bundle.getString("uri");
+                Uri removedUri = Uri.parse(uriStr);
+                removePhoto(removedUri);
             }
         }
     }

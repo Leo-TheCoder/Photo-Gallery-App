@@ -10,10 +10,10 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:required="true"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.CAMERA"
-        android:required="true"/>
-    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
-
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        android:required="true" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
 
     <queries>
         <intent>
@@ -22,20 +22,23 @@
     </queries>
 
     <application
-        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:icon="@mipmap/logo"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".Service.MediaTrackerService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <activity android:name=".LockActivity" />
         <activity android:name=".LockTypeActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".PhotoDisplayActivity" />
-
         <activity
-
             android:name=".SplashScreenActivity"
             android:theme="@style/SplashscreenTheme">
             <intent-filter>
@@ -44,14 +47,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:theme="@style/MainTheme"
-            android:windowSoftInputMode="adjustNothing"/>
-        <activity android:name=".AlbumActivity"
-            android:windowSoftInputMode="adjustNothing"/>
-
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".AlbumActivity"
+            android:windowSoftInputMode="adjustNothing" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -60,9 +62,8 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>
