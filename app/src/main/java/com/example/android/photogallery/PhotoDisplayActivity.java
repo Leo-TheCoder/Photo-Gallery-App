@@ -1,12 +1,17 @@
 package com.example.android.photogallery;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,21 +27,24 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.android.photogallery.Models.Photo;
+import com.example.android.photogallery.Utils.BitmapFileUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final int REQUEST_IMAGE_CAPTURE = 1000;
+    private static final int MY_CAMERA_PERMISSION_CODE = 200;
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore, btnEdit;
+    ImageButton btnShare, btnMore,btnBack;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
 
     static Uri photoUri;
-    String sendingUri;
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -53,20 +61,20 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
-        btnEdit = (ImageButton) findViewById(R.id.btnEdit);
+        btnBack = (ImageButton)findViewById(R.id.btnBack);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
 
 
         btnShare.setOnClickListener(this);
+        btnBack.setOnClickListener(this);
 
         photoUri = myPhotoList.get(position).get_imageUri();
-        sendingUri = photoUri.toString();
         imageDisplay.setImageURI(photoUri);
 
-       imageDisplay.setOnClickListener(new View.OnClickListener() {
-           @Override
+        imageDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View view) {
                 if (!settingPop) {
                     linearTopNav.setVisibility(View.VISIBLE);
@@ -90,11 +98,10 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                         );
                     }
                 }
-                settingPop = !settingPop;            }
+                settingPop = !settingPop;
+            }
         });
         btnMore.setOnClickListener(this);
-        btnEdit.setOnClickListener(this);
-
     }
 
     @Override
@@ -104,11 +111,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             startActivity(shareImageIntent);
         } else if (view.getId() == btnMore.getId()) {
             showPopup(view);
-        } else if (view.getId() == btnEdit.getId()) {
-            Log.i("CLICK EDIT", "" + sendingUri);
-            Intent photoEditIntent = new Intent(this, EditPhotoActivity.class);
-            photoEditIntent.putExtra("photoUri",sendingUri);
-            this.startActivity(photoEditIntent);
+        } else if (view.getId() == btnBack.getId()){
+            finish();
         }
     }
 
@@ -122,13 +126,15 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.camera:
+                if (menuItem.getItemId() == R.id.photoMenuCamera) {
+                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+                    } else {
                         openCamera();
-                        return true;
-                    default:
-                        return false;
+                    }
+                    return true;
                 }
+                return false;
             }
         });
         popupMenu.inflate(R.menu.photo_menu);
@@ -142,16 +148,27 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
      */
 
     private void openCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        } catch (ActivityNotFoundException e) {
-            // display error state to the user
-            e.printStackTrace();
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            dispatchTakePictureIntent();
         }
     }
 
-    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+
+                dispatchTakePictureIntent();
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
 
     /**
@@ -160,8 +177,15 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Picture captured!!!", Toast.LENGTH_SHORT).show();
+
+        if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
+            try {
+                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
+                    Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
+                };
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -190,5 +214,31 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         shareIntent.putExtra(Intent.EXTRA_STREAM, photoUri);
         return shareIntent;
     }
-}
 
+
+    /**
+     * calling camera
+     */
+    public void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = BitmapFileUtils.createImageFile(this);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+}
