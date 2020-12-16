@@ -31,7 +31,6 @@ public class PhotoCategory {
         else {
             Uri lastImgUri = _photosList.get(0).get_imageUri();
             Uri newImgUri = photo.get_imageUri();
-            Log.i("TEST ADD", "" + (lastImgUri!=newImgUri));
             if(!lastImgUri.equals(newImgUri)){
                 _photosList.add(0, photo);
             }

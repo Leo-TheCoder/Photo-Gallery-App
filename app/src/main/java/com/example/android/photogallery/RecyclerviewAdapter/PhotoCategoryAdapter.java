@@ -189,10 +189,12 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
         boolean result = false;
         for(int i = 0; i < _photoCategoryList.size(); i++) {
             result = _photoCategoryList.get(i).removeByUri(uri);
+
             if(result == true) {
                 if(_photoCategoryList.get(i).get_photosList().isEmpty()){
                     _photoCategoryList.remove(i);
                 }
+                submitList(_photoCategoryList);
                 break;
             }
         }
