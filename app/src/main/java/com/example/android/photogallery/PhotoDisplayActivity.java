@@ -38,13 +38,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore,btnBack;
+    ImageButton btnShare, btnMore,btnBack, btnEdit;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
 
     static Uri photoUri;
-
+    String sendingUri;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -62,6 +62,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
         btnBack = (ImageButton)findViewById(R.id.btnBack);
+        btnEdit = (ImageButton) findViewById(R.id.btnEdit);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
@@ -71,6 +72,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnBack.setOnClickListener(this);
 
         photoUri = myPhotoList.get(position).get_imageUri();
+        sendingUri = photoUri.toString();
         imageDisplay.setImageURI(photoUri);
 
         imageDisplay.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +104,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             }
         });
         btnMore.setOnClickListener(this);
+        btnEdit.setOnClickListener(this);
     }
 
     @Override
@@ -111,7 +114,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             startActivity(shareImageIntent);
         } else if (view.getId() == btnMore.getId()) {
             showPopup(view);
-        } else if (view.getId() == btnBack.getId()){
+        } else if(view.getId() == btnEdit.getId()) {
+            Log.i("CLICK EDIT", "" + sendingUri);
+            Intent photoEditIntent = new Intent(this, EditPhotoActivity.class);
+            photoEditIntent.putExtra("photoUri",sendingUri);
+            this.startActivity(photoEditIntent);
+        }
+        else if (view.getId() == btnBack.getId()){
             finish();
         }
     }
