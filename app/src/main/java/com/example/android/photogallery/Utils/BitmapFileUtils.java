@@ -130,9 +130,6 @@ public class BitmapFileUtils {
         ContentResolver resolver = callingActivity.getApplicationContext().getContentResolver();
 
         ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME,
-                System.currentTimeMillis() + ".jpg");
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         values.put(MediaStore.Images.Media.DATE_MODIFIED,System.currentTimeMillis());
         values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/" + bucket);
 
