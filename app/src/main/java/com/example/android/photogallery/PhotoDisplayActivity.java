@@ -1,6 +1,7 @@
 package com.example.android.photogallery;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
@@ -9,9 +10,11 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,7 +41,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore,btnBack, btnEdit;
+    ImageButton btnShare, btnMore,btnBack, btnEdit,btnDelete;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
@@ -62,6 +65,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
         btnBack = (ImageButton)findViewById(R.id.btnBack);
+        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
         btnEdit = (ImageButton) findViewById(R.id.btnEdit);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
@@ -105,6 +109,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         });
         btnMore.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
+        btnDelete.setOnClickListener(this);
     }
 
     @Override
@@ -119,11 +124,37 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             Intent photoEditIntent = new Intent(this, EditPhotoActivity.class);
             photoEditIntent.putExtra("photoUri",sendingUri);
             this.startActivity(photoEditIntent);
-        }
-        else if (view.getId() == btnBack.getId()){
+        } else if (view.getId() == btnDelete.getId()) {
+            deleteImage();
+        } else if (view.getId() == btnBack.getId()) {
             finish();
         }
     }
+
+    /**
+     * Show a message dialog ask whether user want to trash the image
+     */
+    void deleteImage(){
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Delete Image");
+        alertDialog.setMessage("Do you want to delete this image ?");
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "DELETE",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //move to trash bucket
+                        BitmapFileUtils.moveImageToAnotherBucket(PhotoDisplayActivity.this,photoUri,BitmapFileUtils.TRASH);
+                        finish();
+                    }
+                });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "CANCEL",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
 
     /**
      * function that pop up the menu when button More got hit
