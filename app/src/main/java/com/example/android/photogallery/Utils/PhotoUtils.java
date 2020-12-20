@@ -69,14 +69,14 @@ public class PhotoUtils {
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
                 MediaStore.Images.Media.DATE_TAKEN,
                 MediaStore.Images.Media.DATE_MODIFIED,
-                MediaStore.Images.Media.DATE_ADDED};
+            MediaStore.Images.Media.DATE_ADDED};
 
         Cursor cursor = context.getContentResolver().query(allImageUri, projection, null, null, null);
 
         Log.i(LOG_TAG, " query count=" + cursor.getCount());
 
         if (cursor.moveToFirst()) {
-            String id,bucket;
+            String id,bucket,isTrash;
             Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
 
             //get column Index
@@ -92,6 +92,7 @@ public class PhotoUtils {
 
             int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
 
+
             do {
                 // Get the field values
                 bucket = cursor.getString(bucketColumn);
@@ -99,7 +100,6 @@ public class PhotoUtils {
                 dateTaken = cursor.getLong(dateTakenColumn);
                 dateModif = cursor.getLong(dateModifiedColumn);
                 dateAdded = cursor.getLong(dateAddedColumn);
-
 
                 id = cursor.getString(idColumn);
                 Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id);

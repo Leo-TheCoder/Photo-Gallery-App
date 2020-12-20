@@ -1,6 +1,7 @@
 package com.example.android.photogallery.Utils;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -12,10 +13,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 
 import java.io.BufferedInputStream;
@@ -30,6 +33,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -126,6 +130,7 @@ public class BitmapFileUtils {
      * @param bucket bucket name
      * @return success or not of this function
      */
+    @RequiresApi(api = Build.VERSION_CODES.R)
     public static boolean moveImageToAnotherBucket(Activity callingActivity, Uri imageUri, String bucket) {
         ContentResolver resolver = callingActivity.getApplicationContext().getContentResolver();
 
@@ -139,5 +144,39 @@ public class BitmapFileUtils {
                     imageUri,values,null);
         }
         return true;
+    }
+
+
+    public static void queryTrashImages(Activity callingActivity) {
+        Bundle bundle = new Bundle();
+        bundle.putString("query",MediaStore.QUERY_ARG_MATCH_TRASHED);
+        Cursor query = null;
+
+        String[] projection = {MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.BUCKET_ID,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.DATE_MODIFIED,
+                MediaStore.Images.Media.IS_TRASHED};
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            query = callingActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection,
+                     bundle,
+                     null);
+        }
+        if (query.moveToFirst()) {
+            String id,bucket,isTrash;
+            int idColumn = query.getColumnIndex(
+                    MediaStore.Images.Media._ID);
+            int isTrashCol = query.getColumnIndex(
+                    MediaStore.Images.Media.IS_TRASHED);
+            do {
+                id = query.getString(idColumn);
+                isTrash = query.getString(isTrashCol);
+                Log.i("Hello", "date= " + " bucket= " + isTrash  + " id= " + id);
+            } while (query.moveToNext());
+        }
+        query.close();
+
     }
 }

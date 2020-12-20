@@ -8,10 +8,12 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.Image;
@@ -38,10 +40,11 @@ import java.util.ArrayList;
 
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int MY_CAMERA_PERMISSION_CODE = 200;
+    private static final int TRASH_IMAGE_REQUEST = 201;
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore,btnBack, btnEdit,btnDelete;
+    ImageButton btnShare, btnMore, btnBack, btnEdit, btnDelete;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
@@ -64,8 +67,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
-        btnBack = (ImageButton)findViewById(R.id.btnBack);
-        btnDelete = (ImageButton)findViewById(R.id.btnDelete);
+        btnBack = (ImageButton) findViewById(R.id.btnBack);
+        btnDelete = (ImageButton) findViewById(R.id.btnDelete);
         btnEdit = (ImageButton) findViewById(R.id.btnEdit);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
@@ -119,13 +122,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             startActivity(shareImageIntent);
         } else if (view.getId() == btnMore.getId()) {
             showPopup(view);
-        } else if(view.getId() == btnEdit.getId()) {
+        } else if (view.getId() == btnEdit.getId()) {
             Log.i("CLICK EDIT", "" + sendingUri);
             Intent photoEditIntent = new Intent(this, EditPhotoActivity.class);
-            photoEditIntent.putExtra("photoUri",sendingUri);
+            photoEditIntent.putExtra("photoUri", sendingUri);
             this.startActivity(photoEditIntent);
         } else if (view.getId() == btnDelete.getId()) {
-            deleteImage();
+            deleteOrFavoriteImage(true);
         } else if (view.getId() == btnBack.getId()) {
             finish();
         }
@@ -134,27 +137,32 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     /**
      * Show a message dialog ask whether user want to trash the image
      */
-    void deleteImage(){
-        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle("Delete Image");
-        alertDialog.setMessage("Do you want to delete this image ?");
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "DELETE",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        //move to trash bucket
-                        BitmapFileUtils.moveImageToAnotherBucket(PhotoDisplayActivity.this,photoUri,BitmapFileUtils.TRASH);
-                        finish();
-                    }
-                });
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "CANCEL",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        alertDialog.show();
-    }
+    void deleteOrFavoriteImage(boolean isTrash) {
+        // change this if query multi images at a time
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(photoUri);
 
+        PendingIntent pendingIntent = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (isTrash) {
+                pendingIntent = MediaStore.createTrashRequest(
+                        getContentResolver(), uris
+                        , true);
+            } else {
+                pendingIntent = MediaStore.createFavoriteRequest(
+                        getContentResolver(), uris
+                        , true);
+            }
+        }
+
+        try {
+            PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),TRASH_IMAGE_REQUEST, null, 0, 0, 0);
+            Log.e("TAG","Sended!!!");
+        } catch (IntentSender.SendIntentException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * function that pop up the menu when button More got hit
@@ -210,7 +218,6 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     }
 
 
-
     /**
      * function handle activity result
      */
@@ -220,12 +227,16 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
             try {
-                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
+                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)) {
                     Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
-                };
+                }
+                ;
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else if (requestCode == TRASH_IMAGE_REQUEST){
+            if (resultCode == RESULT_OK)
+                finish();
         }
     }
 
