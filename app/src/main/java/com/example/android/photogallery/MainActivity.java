@@ -66,27 +66,29 @@ public class MainActivity extends AppCompatActivity {
     private PhotoCategoryAdapter photoDateAdapter = new PhotoCategoryAdapter(this);
     private AlbumsAdapter photoBucketAdapter = new AlbumsAdapter(this);
 
+    private boolean isFakeOn = false;
+    private int signal = 0;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //check if the app is locked
-
-        if (isLock()){
-            Intent lockIntent = new Intent(this,LockActivity.class);
-            lockIntent.putExtra(LockActivity.KEY_SET,false);
-            startActivityForResult(lockIntent,IS_LOCK_REQUEST);
-        }
-
 
         super.onCreate(savedInstanceState);
         //Get photos from system
         //...
         PhotoUtils.externalStoragePermissionCheck(this);
+        PhotoUtils.generateFakeImageList(this);
         myPhotoList = PhotoUtils.getImagesFromExternal();
         if(myPhotoList.size() == 0) {
-
             PhotoUtils.getAllImageFromExternal(this);
-            myPhotoList = PhotoUtils.getImagesFromExternal();
+            //check if the app is locked
+            if (isLock()){
+                isFakeOn = true;
+                myPhotoList = PhotoUtils.getFakeImages();
+            } else {
+                isFakeOn = false;
+                myPhotoList = PhotoUtils.getImagesFromExternal();
+            }
         }
 
         myService = new Intent(this, MediaTrackerService.class);
@@ -140,7 +142,17 @@ public class MainActivity extends AppCompatActivity {
         btnMenuList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopup(v);
+                if (isFakeOn)
+                {
+                    signal++;
+                    if (signal == 5){
+                        Intent lockIntent = new Intent(MainActivity.this,LockActivity.class);
+                        lockIntent.putExtra(LockActivity.KEY_SET,false);
+                        startActivityForResult(lockIntent,IS_LOCK_REQUEST);
+                    }
+                } else {
+                    showPopup(v);
+                }
             }
         });
     }
@@ -223,6 +235,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK) {
             finish();
+        } else {
+            myPhotoList = PhotoUtils.getImagesFromExternal();
+            isFakeOn = false;
+            Log.e("TAG","HI");
         }
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {

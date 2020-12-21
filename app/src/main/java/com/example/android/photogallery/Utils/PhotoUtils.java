@@ -2,8 +2,10 @@ package com.example.android.photogallery.Utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -16,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.android.photogallery.Models.Photo;
+import com.example.android.photogallery.R;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +38,7 @@ public class PhotoUtils {
     private static ArrayList<Photo> photosList = new ArrayList<>();
     private static ArrayList<Photo> trashPhotoList = new ArrayList<>();
     private static ArrayList<Uri> imageUrisList = new ArrayList<>();
+    private static ArrayList<Photo> fakePhotoList = new ArrayList<>();
 
     //end region
 
@@ -224,4 +228,29 @@ public class PhotoUtils {
         return trashPhotoList;
     }
     //end region
+
+
+    //fake image list
+    public static void generateFakeImageList(Activity callingActivity) {
+        ArrayList<Photo> fakeImageList = new ArrayList<>();
+        Resources resources = callingActivity.getResources();
+
+        for (int i = 1; i<=10;i++){
+            String name = "fake"+i;
+            int id = callingActivity.getResources().getIdentifier(name, "drawable", callingActivity.getPackageName());
+            Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+                    resources.getResourcePackageName(id) + '/' +
+                    resources.getResourceTypeName(id) + '/' +
+                    resources.getResourceEntryName(id) );
+            Photo newPhoto = new Photo("Camera",new Date(1000L * System.currentTimeMillis()), imageUri);
+            fakePhotoList.add(newPhoto);
+        }
+    }
+    /**
+     * @return ArrayList of all Loaded Photo
+     */
+    public static ArrayList<Photo> getFakeImages() {
+        return fakePhotoList;
+    }
+
 }

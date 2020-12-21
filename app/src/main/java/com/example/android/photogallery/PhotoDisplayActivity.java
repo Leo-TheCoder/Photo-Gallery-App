@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
+import com.example.android.photogallery.Utils.PhotoUtils;
 
 import java.io.File;
 import java.io.IOException;

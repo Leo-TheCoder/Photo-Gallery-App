@@ -147,36 +147,5 @@ public class BitmapFileUtils {
     }
 
 
-    public static void queryTrashImages(Activity callingActivity) {
-        Bundle bundle = new Bundle();
-        bundle.putString("query",MediaStore.QUERY_ARG_MATCH_TRASHED);
-        Cursor query = null;
 
-        String[] projection = {MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.BUCKET_ID,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN,
-                MediaStore.Images.Media.DATE_MODIFIED,
-                MediaStore.Images.Media.IS_TRASHED};
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            query = callingActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    projection,
-                     bundle,
-                     null);
-        }
-        if (query.moveToFirst()) {
-            String id,bucket,isTrash;
-            int idColumn = query.getColumnIndex(
-                    MediaStore.Images.Media._ID);
-            int isTrashCol = query.getColumnIndex(
-                    MediaStore.Images.Media.IS_TRASHED);
-            do {
-                id = query.getString(idColumn);
-                isTrash = query.getString(isTrashCol);
-                Log.i("Hello", "date= " + " bucket= " + isTrash  + " id= " + id);
-            } while (query.moveToNext());
-        }
-        query.close();
-
-    }
 }
