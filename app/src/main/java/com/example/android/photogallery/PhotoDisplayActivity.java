@@ -41,10 +41,11 @@ import java.util.ArrayList;
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int MY_CAMERA_PERMISSION_CODE = 200;
     private static final int TRASH_IMAGE_REQUEST = 201;
+    private static final int FAV_IMAGE_REQUEST = 202;
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore, btnBack, btnEdit, btnDelete;
+    ImageButton btnShare, btnMore, btnBack, btnEdit, btnDelete,btnFavorite;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
@@ -70,6 +71,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnBack = (ImageButton) findViewById(R.id.btnBack);
         btnDelete = (ImageButton) findViewById(R.id.btnDelete);
         btnEdit = (ImageButton) findViewById(R.id.btnEdit);
+        btnFavorite = (ImageButton) findViewById(R.id.btnFavorite);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
@@ -112,6 +114,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         });
         btnMore.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
+        btnFavorite.setOnClickListener(this);
         btnDelete.setOnClickListener(this);
     }
 
@@ -129,7 +132,10 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             this.startActivity(photoEditIntent);
         } else if (view.getId() == btnDelete.getId()) {
             deleteOrFavoriteImage(true);
-        } else if (view.getId() == btnBack.getId()) {
+        }else if (view.getId() == btnFavorite.getId()) {
+            deleteOrFavoriteImage(false);
+        }
+        else if (view.getId() == btnBack.getId()) {
             finish();
         }
     }
@@ -149,19 +155,26 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                 pendingIntent = MediaStore.createTrashRequest(
                         getContentResolver(), uris
                         , true);
+                try {
+                    PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),TRASH_IMAGE_REQUEST, null, 0, 0, 0);
+                    Log.e("TAG","Sended!!!");
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
             } else {
                 pendingIntent = MediaStore.createFavoriteRequest(
                         getContentResolver(), uris
                         , true);
+                try {
+                    PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),FAV_IMAGE_REQUEST, null, 0, 0, 0);
+                    Log.e("TAG","Sended!!!");
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        try {
-            PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),TRASH_IMAGE_REQUEST, null, 0, 0, 0);
-            Log.e("TAG","Sended!!!");
-        } catch (IntentSender.SendIntentException e) {
-            e.printStackTrace();
-        }
+
     }
 
     /**
