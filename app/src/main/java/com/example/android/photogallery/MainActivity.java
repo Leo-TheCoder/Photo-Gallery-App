@@ -139,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
                 tab.setText(tabTitle[position]);
             }
         }).attach();
+
+
+
         btnMenuList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,7 +220,6 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-
                 dispatchTakePictureIntent();
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
@@ -232,13 +234,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == IS_LOCK_REQUEST && resultCode != RESULT_OK) {
-            finish();
-        } else {
-            myPhotoList = PhotoUtils.getImagesFromExternal();
-            isFakeOn = false;
-            Log.e("TAG","HI");
+        if (requestCode == IS_LOCK_REQUEST ) {
+            if (resultCode != RESULT_OK) {
+                finish();
+            } else {
+                myPhotoList = PhotoUtils.getImagesFromExternal();
+                isFakeOn = false;
+            }
         }
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
