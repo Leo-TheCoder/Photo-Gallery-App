@@ -74,6 +74,10 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
     public void addOnePhotoAlbum(Photo newPhoto) {
         boolean flag = false;
         String photoTitle = newPhoto.get_bucket();
+        if(newPhoto.is_favorite()) {
+            photoTitle = "Favorite";
+        }
+
         for (int i = 0; i < mPhotoCategoryList.size(); i++) {
             if (photoTitle.equals(mPhotoCategoryList.get(i).get_title())) {
                 mPhotoCategoryList.get(i).addPhoto(newPhoto);
@@ -99,6 +103,7 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         for(int i = 0; i < mPhotoCategoryList.size(); i++) {
             result = mPhotoCategoryList.get(i).removeByUri(uri);
             if(result == true) {
+                submitList(mPhotoCategoryList);
                 break;
             }
         }

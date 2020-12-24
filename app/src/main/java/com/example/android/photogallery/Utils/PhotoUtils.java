@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -32,6 +33,7 @@ public class PhotoUtils {
     //region local variables
 
     private static ArrayList<Photo> photosList = new ArrayList<>();
+    private static ArrayList<Photo> trashPhotoList = new ArrayList<>();
     private static ArrayList<Uri> imageUrisList = new ArrayList<>();
 
     //end region
@@ -60,6 +62,7 @@ public class PhotoUtils {
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static void getAllImageFromExternal(Context context){
+        photosList.clear();
         Uri allImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
         Log.i(LOG_TAG, "URI: " + allImageUri);
@@ -69,14 +72,15 @@ public class PhotoUtils {
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
                 MediaStore.Images.Media.DATE_TAKEN,
                 MediaStore.Images.Media.DATE_MODIFIED,
-                MediaStore.Images.Media.DATE_ADDED};
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.IS_FAVORITE};
 
         Cursor cursor = context.getContentResolver().query(allImageUri, projection, null, null, null);
 
         Log.i(LOG_TAG, " query count=" + cursor.getCount());
 
         if (cursor.moveToFirst()) {
-            String id,bucket;
+            String id,bucket,isTrash, isFavorite;
             Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
 
             //get column Index
@@ -92,6 +96,8 @@ public class PhotoUtils {
 
             int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
 
+            int favColumn = cursor.getColumnIndex(MediaStore.Images.Media.IS_FAVORITE);
+
             do {
                 // Get the field values
                 bucket = cursor.getString(bucketColumn);
@@ -99,10 +105,10 @@ public class PhotoUtils {
                 dateTaken = cursor.getLong(dateTakenColumn);
                 dateModif = cursor.getLong(dateModifiedColumn);
                 dateAdded = cursor.getLong(dateAddedColumn);
-
-
+                isFavorite = cursor.getString(favColumn);
+                boolean isFav = isFavorite.equals("1");
                 id = cursor.getString(idColumn);
-                Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id);
+                Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id + " favorite= " + isFavorite);
 
                 // Do something with the values.
                 String dateTime = "Date taken not found!!!";
@@ -122,7 +128,7 @@ public class PhotoUtils {
                 Log.i(LOG_TAG, "dateTime= " + dateTime);
                 // Add new loaded photo
 
-                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri);
+                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, isFav);
                 photosList.add(newPhoto);
                 imageUrisList.add(allImageUri);
 
@@ -136,6 +142,90 @@ public class PhotoUtils {
      */
     public static ArrayList<Photo> getImagesFromExternal() {
         return photosList;
+    }
+    //end region
+
+    public static void queryTrashImages(Activity callingActivity) {
+        Uri allImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        Bundle bundle = new Bundle();
+        String[] projection = new String[0];
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            bundle.putInt(MediaStore.QUERY_ARG_MATCH_TRASHED,MediaStore.MATCH_INCLUDE);
+            projection = new String[]{MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.DATE_TAKEN,
+                    MediaStore.Images.Media.DATE_MODIFIED,
+                    MediaStore.Images.Media.IS_TRASHED};
+        }
+        Cursor cursor = null;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            cursor = callingActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection,
+                    bundle,
+                    null);
+        }
+        if (cursor.moveToFirst()) {
+            String id,bucket,isTrash;
+            Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
+            int idColumn = cursor.getColumnIndex(
+                    MediaStore.Images.Media._ID);
+            int isTrashCol = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                isTrashCol = cursor.getColumnIndex(
+                        MediaStore.Images.Media.IS_TRASHED);
+            }
+            //get column Index
+            int bucketColumn = cursor.getColumnIndex(
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+
+            int dateTakenColumn = cursor.getColumnIndex(
+                    MediaStore.Images.Media.DATE_TAKEN);
+
+            int dateModifiedColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED);
+
+            int dateAddedColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
+
+            // Get the field values
+            bucket = cursor.getString(bucketColumn);
+
+            dateTaken = cursor.getLong(dateTakenColumn);
+            dateModif = cursor.getLong(dateModifiedColumn);
+            dateAdded = cursor.getLong(dateAddedColumn);
+
+
+            do {
+                id = cursor.getString(idColumn);
+                isTrash = cursor.getString(isTrashCol);
+                Log.i(LOG_TAG," Trash= " + isTrash  + " id= " + id);
+
+                // Do something with the values.
+                String dateTime = "Date taken not found!!!";
+                Uri imageUri = Uri.withAppendedPath(allImageUri, id);
+
+                Date DateFromEpocTime = null;
+                if (dateAdded != 0) {
+                    DateFromEpocTime = new Date(dateAdded*1000L);
+                } else if (dateTaken != 0) {
+                    DateFromEpocTime = new Date(dateTaken);
+                }
+                else if (dateModif != 0){
+                    DateFromEpocTime = new Date(dateModif*1000L);
+                }
+
+                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, false);
+                trashPhotoList.add(newPhoto);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+    }
+    /**
+     * @return ArrayList of all Loaded Photo
+     */
+    public static ArrayList<Photo> getTrashImages() {
+        return trashPhotoList;
     }
     //end region
 }

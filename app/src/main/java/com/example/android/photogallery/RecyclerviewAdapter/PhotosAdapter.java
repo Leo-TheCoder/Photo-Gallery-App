@@ -127,9 +127,8 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
                 @Override
                 public boolean areContentsTheSame(Photo oldItem, Photo newItem) {
                     return (oldItem.get_date().equals(newItem.get_date()) &&
-                            oldItem.get_bucket().equals(newItem.get_bucket()));
+                            oldItem.get_bucket().equals(newItem.get_bucket()) &&
+                            oldItem.is_favorite() == newItem.is_favorite());
                 }
             };
-
-
 }

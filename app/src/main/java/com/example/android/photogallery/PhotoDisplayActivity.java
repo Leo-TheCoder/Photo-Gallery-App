@@ -1,17 +1,22 @@
 package com.example.android.photogallery;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,10 +40,12 @@ import java.util.ArrayList;
 
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int MY_CAMERA_PERMISSION_CODE = 200;
+    private static final int TRASH_IMAGE_REQUEST = 201;
+    private static final int FAV_IMAGE_REQUEST = 202;
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore,btnBack, btnEdit;
+    ImageButton btnShare, btnMore, btnBack, btnEdit, btnDelete,btnFavorite;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
@@ -61,8 +68,10 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
-        btnBack = (ImageButton)findViewById(R.id.btnBack);
+        btnBack = (ImageButton) findViewById(R.id.btnBack);
+        btnDelete = (ImageButton) findViewById(R.id.btnDelete);
         btnEdit = (ImageButton) findViewById(R.id.btnEdit);
+        btnFavorite = (ImageButton) findViewById(R.id.btnFavorite);
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
@@ -105,6 +114,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         });
         btnMore.setOnClickListener(this);
         btnEdit.setOnClickListener(this);
+        btnFavorite.setOnClickListener(this);
+        btnDelete.setOnClickListener(this);
     }
 
     @Override
@@ -114,15 +125,56 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             startActivity(shareImageIntent);
         } else if (view.getId() == btnMore.getId()) {
             showPopup(view);
-        } else if(view.getId() == btnEdit.getId()) {
+        } else if (view.getId() == btnEdit.getId()) {
             Log.i("CLICK EDIT", "" + sendingUri);
             Intent photoEditIntent = new Intent(this, EditPhotoActivity.class);
-            photoEditIntent.putExtra("photoUri",sendingUri);
+            photoEditIntent.putExtra("photoUri", sendingUri);
             this.startActivity(photoEditIntent);
+        } else if (view.getId() == btnDelete.getId()) {
+            deleteOrFavoriteImage(true);
+        }else if (view.getId() == btnFavorite.getId()) {
+            deleteOrFavoriteImage(false);
         }
-        else if (view.getId() == btnBack.getId()){
+        else if (view.getId() == btnBack.getId()) {
             finish();
         }
+    }
+
+    /**
+     * Show a message dialog ask whether user want to trash the image
+     */
+    void deleteOrFavoriteImage(boolean isTrash) {
+        // change this if query multi images at a time
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(photoUri);
+
+        PendingIntent pendingIntent = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (isTrash) {
+                pendingIntent = MediaStore.createTrashRequest(
+                        getContentResolver(), uris
+                        , true);
+                try {
+                    PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),TRASH_IMAGE_REQUEST, null, 0, 0, 0);
+                    Log.e("TAG","Sended!!!");
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                pendingIntent = MediaStore.createFavoriteRequest(
+                        getContentResolver(), uris
+                        , true);
+                try {
+                    PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),FAV_IMAGE_REQUEST, null, 0, 0, 0);
+                    Log.e("TAG","Sended!!!");
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
     }
 
     /**
@@ -179,7 +231,6 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     }
 
 
-
     /**
      * function handle activity result
      */
@@ -189,12 +240,16 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
             try {
-                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
+                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)) {
                     Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
-                };
+                }
+                ;
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else if (requestCode == TRASH_IMAGE_REQUEST){
+            if (resultCode == RESULT_OK)
+                finish();
         }
     }
 
