@@ -62,6 +62,7 @@ public class PhotoUtils {
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static void getAllImageFromExternal(Context context){
+        photosList.clear();
         Uri allImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
         Log.i(LOG_TAG, "URI: " + allImageUri);
@@ -71,14 +72,15 @@ public class PhotoUtils {
                 MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
                 MediaStore.Images.Media.DATE_TAKEN,
                 MediaStore.Images.Media.DATE_MODIFIED,
-            MediaStore.Images.Media.DATE_ADDED};
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.IS_FAVORITE};
 
         Cursor cursor = context.getContentResolver().query(allImageUri, projection, null, null, null);
 
         Log.i(LOG_TAG, " query count=" + cursor.getCount());
 
         if (cursor.moveToFirst()) {
-            String id,bucket,isTrash;
+            String id,bucket,isTrash, isFavorite;
             Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
 
             //get column Index
@@ -94,6 +96,7 @@ public class PhotoUtils {
 
             int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
 
+            int favColumn = cursor.getColumnIndex(MediaStore.Images.Media.IS_FAVORITE);
 
             do {
                 // Get the field values
@@ -102,9 +105,10 @@ public class PhotoUtils {
                 dateTaken = cursor.getLong(dateTakenColumn);
                 dateModif = cursor.getLong(dateModifiedColumn);
                 dateAdded = cursor.getLong(dateAddedColumn);
-
+                isFavorite = cursor.getString(favColumn);
+                boolean isFav = isFavorite.equals("1");
                 id = cursor.getString(idColumn);
-                Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id);
+                Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id + " favorite= " + isFavorite);
 
                 // Do something with the values.
                 String dateTime = "Date taken not found!!!";
@@ -124,7 +128,7 @@ public class PhotoUtils {
                 Log.i(LOG_TAG, "dateTime= " + dateTime);
                 // Add new loaded photo
 
-                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri);
+                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, isFav);
                 photosList.add(newPhoto);
                 imageUrisList.add(allImageUri);
 
@@ -211,7 +215,7 @@ public class PhotoUtils {
                     DateFromEpocTime = new Date(dateModif*1000L);
                 }
 
-                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri);
+                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, false);
                 trashPhotoList.add(newPhoto);
             } while (cursor.moveToNext());
         }

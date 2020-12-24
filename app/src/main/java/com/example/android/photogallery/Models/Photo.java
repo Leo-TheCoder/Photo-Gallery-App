@@ -13,23 +13,18 @@ public class Photo implements Parcelable {
     private String _bucket;
     private Uri _imageUri;
     private Date _date;
+    private boolean _favorite;
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
 
     public Photo(){}
 
-    public Photo(String bucket, Date date, Uri imageUri)
+    public Photo(String bucket, Date date, Uri imageUri, boolean favorite)
     {
         _bucket=bucket;
         _date=date;
         _imageUri=imageUri;
-    }
-
-
-    protected Photo(Parcel in) {
-        _bucket = in.readString();
-        _imageUri = in.readParcelable(Uri.class.getClassLoader());
-        _date = new Date(in.readLong());
+        _favorite = favorite;
     }
 
     public static final Creator<Photo> CREATOR = new Creator<Photo>() {
@@ -67,6 +62,10 @@ public class Photo implements Parcelable {
     public void set_date(Date _date) {
         this._date = _date;
     }
+
+    public void set_favorite(boolean isFavorite) {this._favorite = isFavorite;}
+
+    public boolean is_favorite() { return _favorite; }
 
     public String get_dateTitle() {
         return MainActivity.Formatter.format(_date);
@@ -113,5 +112,14 @@ public class Photo implements Parcelable {
         dest.writeString(_bucket);
         dest.writeParcelable(_imageUri, flags);
         dest.writeLong(_date.getTime());
+        dest.writeBoolean(_favorite);
     }
+
+    protected Photo(Parcel in) {
+        _bucket = in.readString();
+        _imageUri = in.readParcelable(Uri.class.getClassLoader());
+        _date = new Date(in.readLong());
+        _favorite = in.readBoolean();
+    }
+
 }

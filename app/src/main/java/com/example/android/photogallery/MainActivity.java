@@ -259,56 +259,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Add one photo to both DateAdapter and AlbumsAdapter
-     * Update UI
-     * @param newPhoto
-     * @throws ParseException
-     */
-    public void addPhoto(Photo newPhoto) throws ParseException {
-        photoDateAdapter.addOnePhoto(newPhoto, PhotoCategory.CATEGORY_DATE);
-        photoBucketAdapter.addOnePhotoAlbum(newPhoto);
-        photoDateAdapter.notifyDataSetChanged();    //Update UI Photos's tab
-        photoBucketAdapter.notifyDataSetChanged();  //Update UI Albums's tab
-    }
-
-    /**
-     * Remove photo by finding its uri
-     * Only update UI when removes successfully
-     * @param uri
-     */
-    public void removePhoto(Uri uri) {
-        boolean result = false;
-        result = photoDateAdapter.removePhotoByUri(uri);
-        result = photoBucketAdapter.removeByUri(uri);
-        if(result == true) {
-            photoDateAdapter.notifyDataSetChanged();
-            photoBucketAdapter.notifyDataSetChanged();
-        }
-    }
-
     // Broadcast Receiver to receive info whenever there is some changes
     public class MediaBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
-            String key = bundle.getString("key");
 
-            if(key.equals("add"))
-            {
-                Photo newPhoto = bundle.getParcelable("photo");
-                try {
-                    addPhoto(newPhoto);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            else {
-                String uriStr = bundle.getString("uri");
-                Uri removedUri = Uri.parse(uriStr);
-                removePhoto(removedUri);
-            }
+            ArrayList<PhotoCategory> datePhotos = bundle.getParcelableArrayList("dateList");
+            ArrayList<PhotoCategory> albumPhotos = bundle.getParcelableArrayList("albumList");
+
+            onChangeDataDatePhotos(datePhotos);
+            onChangeDataAlbumPhotos(albumPhotos);
+
         }
+        public void onChangeDataDatePhotos(ArrayList<PhotoCategory> datePhotos) {
+            photoDateAdapter.submitList(datePhotos);
+        }
+        public void onChangeDataAlbumPhotos(ArrayList<PhotoCategory> datePhotos) {
+            photoBucketAdapter.submitList(datePhotos);
+        }
+
     }
 
 

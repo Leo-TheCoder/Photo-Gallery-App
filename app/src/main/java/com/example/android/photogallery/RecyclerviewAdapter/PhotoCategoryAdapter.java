@@ -2,9 +2,11 @@ package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,7 +31,6 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
             viewPool = new RecyclerView.RecycledViewPool();
 
     private GridLayoutManager layoutManager;
-
 
 
     // Provide a direct reference to each of the views within a data item
@@ -214,4 +215,16 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
                     return (oldItem.get_photosList().equals(newItem.get_photosList()));
                 }
             };
+
+    public void updateList(ArrayList<PhotoCategory> newList) {
+        _photoCategoryList = new ArrayList<PhotoCategory>(newList);
+        int count = 0;
+        for(int i =0;i < newList.size(); i++) {
+            count += newList.get(i).get_photosList().size();
+            Log.e("UPDATE", "updateList: " + newList.get(i).get_title() );
+        }
+        Log.e("UPDATE", "COUNT = " + count);
+
+        submitList(_photoCategoryList);
+    }
 }
