@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,6 +52,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
 
     static Uri photoUri;
+    private Photo thisPhoto;
     String sendingUri;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -65,6 +67,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         Log.i("SIZE", "" + myPhotoList.size());
 
         int position = bundle.getInt("position");
+        thisPhoto = myPhotoList.get(position);
 
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
@@ -72,6 +75,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnDelete = (ImageButton) findViewById(R.id.btnDelete);
         btnEdit = (ImageButton) findViewById(R.id.btnEdit);
         btnFavorite = (ImageButton) findViewById(R.id.btnFavorite);
+        if(thisPhoto.is_favorite()){
+            btnFavorite.setImageResource(R.drawable.baseline_favorite_border_red_24dp);
+        }
+        else {
+            btnFavorite.setImageResource(R.drawable.baseline_favorite_border_white_24dp);
+        }
+
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
@@ -162,9 +172,19 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                     e.printStackTrace();
                 }
             } else {
-                pendingIntent = MediaStore.createFavoriteRequest(
-                        getContentResolver(), uris
-                        , true);
+                if(!thisPhoto.is_favorite()) {
+                    pendingIntent = MediaStore.createFavoriteRequest(
+                            getContentResolver(), uris
+                            , true);
+                    btnFavorite.setImageResource(R.drawable.baseline_favorite_border_red_24dp);
+                }
+                else {
+                    pendingIntent = MediaStore.createFavoriteRequest(
+                            getContentResolver(), uris
+                            , false);
+                    btnFavorite.setImageResource(R.drawable.baseline_favorite_border_white_24dp);
+                }
+
                 try {
                     PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),FAV_IMAGE_REQUEST, null, 0, 0, 0);
                     Log.e("TAG","Sended!!!");
@@ -172,6 +192,9 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                     e.printStackTrace();
                 }
             }
+        }
+        else {
+
         }
 
 
