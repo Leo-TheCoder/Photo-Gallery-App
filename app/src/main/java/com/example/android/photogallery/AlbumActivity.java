@@ -34,6 +34,7 @@ public class AlbumActivity extends AppCompatActivity {
 
     private boolean isFakeOn = false;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

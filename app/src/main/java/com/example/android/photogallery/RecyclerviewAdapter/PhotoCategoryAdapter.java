@@ -32,7 +32,9 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
 
     private GridLayoutManager layoutManager;
 
+
     private boolean isFakeOn = false;
+
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
