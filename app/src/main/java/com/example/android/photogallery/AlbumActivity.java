@@ -20,11 +20,12 @@ import java.util.ArrayList;
 public class AlbumActivity extends AppCompatActivity {
     private ArrayList<Photo> albumPhotoList;
 
-    private SpecificAlbumAdapter albumAdapter = new SpecificAlbumAdapter(this);
+    private SpecificAlbumAdapter albumAdapter = null;
     private RecyclerView photoAlbumRecyclerView;
     private ImageView headerImageView;
     private TextView titleTextView;
     private TextView numOfPhotosTextView;
+    private boolean isFakeOn = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +43,8 @@ public class AlbumActivity extends AppCompatActivity {
         titleTextView.setText(albumTitle);
 
         Integer numberOfPhotos = bundle.getInt("albumNumberofPhotos");
+        isFakeOn = bundle.getBoolean("isFake");
+        albumAdapter = new SpecificAlbumAdapter(this,isFakeOn);
         numOfPhotosTextView = (TextView) findViewById(R.id.album_number_of_photos);
         Resources res = getResources();
         String numOfPhotos = res.getQuantityString(R.plurals.numberOfPhotos, numberOfPhotos, numberOfPhotos);

@@ -1,8 +1,6 @@
 package com.example.android.photogallery.Models;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -25,32 +23,7 @@ public class PhotoCategory {
     }
 
     public void addPhoto(Photo photo) {
-        if(_photosList.isEmpty()) {
-           _photosList.add(photo);
-        }
-        else {
-            Uri lastImgUri = _photosList.get(0).get_imageUri();
-            Uri newImgUri = photo.get_imageUri();
-            if(!lastImgUri.equals(newImgUri)){
-                _photosList.add(0, photo);
-            }
-            else {
-                _photosList.set(0, photo);
-            }
-        }
-    }
-
-    public boolean removeByUri(Uri uri) {
-        boolean result = false;
-        for(int i = 0; i < _photosList.size(); i++) {
-            Uri imageUri = _photosList.get(i).get_imageUri();
-            if(imageUri.equals(uri)) {
-                _photosList.remove(i);
-                result = true;
-                break;
-            }
-        }
-        return result;
+        _photosList.add(0, photo);
     }
 
     public ArrayList<Photo> get_photosList() {

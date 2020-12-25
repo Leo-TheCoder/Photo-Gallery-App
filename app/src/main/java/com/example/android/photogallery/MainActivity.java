@@ -4,19 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -34,7 +29,6 @@ import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
-import com.example.android.photogallery.Service.MediaTrackerService;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
@@ -42,7 +36,6 @@ import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton btnMenuList;
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
-    private Intent myService;
-
-    private PhotoCategoryAdapter photoDateAdapter = new PhotoCategoryAdapter(this);
-    private AlbumsAdapter photoBucketAdapter = new AlbumsAdapter(this);
+    private final String KEY_LIST_PHOTOS = "keyList";
 
     private boolean isFakeOn = false;
+
+    private PhotoCategoryAdapter photoDateAdapter = null;
+    private AlbumsAdapter photoBucketAdapter = null;
     private int signal = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -78,35 +71,58 @@ public class MainActivity extends AppCompatActivity {
         //...
         PhotoUtils.externalStoragePermissionCheck(this);
         PhotoUtils.generateFakeImageList(this);
-        myPhotoList = PhotoUtils.getImagesFromExternal();
-        if(myPhotoList.size() == 0) {
-            PhotoUtils.getAllImageFromExternal(this);
-            //check if the app is locked
-            if (isLock()){
-                isFakeOn = true;
-                myPhotoList = PhotoUtils.getFakeImages();
-            } else {
-                isFakeOn = false;
-                myPhotoList = PhotoUtils.getImagesFromExternal();
-            }
+        PhotoUtils.getAllImageFromExternal(this);
+
+        if (isLock()) {
+            isFakeOn = true;
+            myPhotoList = PhotoUtils.getFakeImages();
+
+        } else {
+            isFakeOn = false;
+            myPhotoList = PhotoUtils.getImagesFromExternal();
         }
 
-        myService = new Intent(this, MediaTrackerService.class);
-        startService(myService);
-
-        IntentFilter filter = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE);
-        BroadcastReceiver receiver = new MediaBroadcastReceiver();
-        registerReceiver(receiver, filter);
-
+        Log.e("TAG", "true? " + isFakeOn);
         setContentView(R.layout.activity_main);
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
 
-
         //Initialize 2 adapter for recycler view
         //....
-        for(int i = 0; i < myPhotoList.size(); i++) {
+        setMyAdapter();
+
+        //Initialize tab layout for our viewpager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        new TabLayoutMediator(tabLayout, viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                tab.setText(tabTitle[position]);
+            }
+        }).attach();
+        btnMenuList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFakeOn) {
+                    signal++;
+                    if (signal == 5) {
+                        Intent lockIntent = new Intent(MainActivity.this, LockActivity.class);
+                        lockIntent.putExtra(LockActivity.KEY_SET, false);
+                        startActivityForResult(lockIntent, IS_LOCK_REQUEST);
+                    }
+                } else {
+                    showPopup(v);
+                }
+            }
+        });
+    }
+
+    void setMyAdapter() {
+        photoDateAdapter = new PhotoCategoryAdapter(this, isFakeOn);
+        photoBucketAdapter = new AlbumsAdapter(this,isFakeOn);
+        //Initialize 2 adapter for recycler view
+        //....
+        for (int i = 0; i < myPhotoList.size(); i++) {
             try {
                 photoDateAdapter.addOnePhoto(myPhotoList.get(i), PhotoCategory.CATEGORY_DATE);
                 photoBucketAdapter.addOnePhotoAlbum(myPhotoList.get(i));
@@ -130,64 +146,39 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(myAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.setPageTransformer(new ZoomOutPageTransformer()); //Animation when transfer page
-
-        //Initialize tab layout for our viewpager
-        TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
-        new TabLayoutMediator(tabLayout, viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
-            @Override
-            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                tab.setText(tabTitle[position]);
-            }
-        }).attach();
-
-
-
-        btnMenuList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isFakeOn)
-                {
-                    signal++;
-                    if (signal == 5){
-                        Intent lockIntent = new Intent(MainActivity.this,LockActivity.class);
-                        lockIntent.putExtra(LockActivity.KEY_SET,false);
-                        startActivityForResult(lockIntent,IS_LOCK_REQUEST);
-                    }
-                } else {
-                    showPopup(v);
-                }
-            }
-        });
     }
+
 
     /**
      * function that navigate user to setting activity
      */
-    void navigateToSetting(){
+    void navigateToSetting() {
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
     }
 
     /**
      * Check if the app is locked
+     *
      * @return boolean value
      */
     boolean isLock() {
-        SharedPreferences sharedPreferences =  getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
-        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE,false);
+        SharedPreferences sharedPreferences = getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
+        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE, false);
     }
 
 
     /**
      * function that pop up the menu when button More got hit
+     *
      * @param v the view that got hit
      */
-    public void showPopup(View v){
+    public void showPopup(View v) {
         PopupMenu popupMenu = new PopupMenu(this, btnMenuList);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()){
+                switch (menuItem.getItemId()) {
                     case R.id.MainSettingMenuItem:
                         navigateToSetting();
                         return true;
@@ -206,12 +197,17 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
     }
+
+    /**
+     * function that create an intent to open camera
+     *
+     * @no params
+     */
+
     private void openCamera() {
-        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
-        } else {
-            dispatchTakePictureIntent();
-        }
+        Log.e("TAG", getExternalFilesDir(null).toString());
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
     }
 
     @Override
@@ -220,7 +216,9 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-                dispatchTakePictureIntent();
+
+                openCamera();
+
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
@@ -234,100 +232,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IS_LOCK_REQUEST ) {
+
+        if (requestCode == IS_LOCK_REQUEST) {
             if (resultCode != RESULT_OK) {
                 finish();
             } else {
                 myPhotoList = PhotoUtils.getImagesFromExternal();
                 isFakeOn = false;
+                setMyAdapter();
             }
         }
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
-            try {
-                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
-                    Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
-                };
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = BitmapFileUtils.createImageFile(this);
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                ex.printStackTrace();
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        getApplicationContext().getPackageName() + ".fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
-            }
-        }
-    }
-
-    /**
-     * Add one photo to both DateAdapter and AlbumsAdapter
-     * Update UI
-     * @param newPhoto
-     * @throws ParseException
-     */
-    public void addPhoto(Photo newPhoto) throws ParseException {
-        photoDateAdapter.addOnePhoto(newPhoto, PhotoCategory.CATEGORY_DATE);
-        photoBucketAdapter.addOnePhotoAlbum(newPhoto);
-        photoDateAdapter.notifyDataSetChanged();    //Update UI Photos's tab
-        photoBucketAdapter.notifyDataSetChanged();  //Update UI Albums's tab
-    }
-
-    /**
-     * Remove photo by finding its uri
-     * Only update UI when removes successfully
-     * @param uri
-     */
-    public void removePhoto(Uri uri) {
-        boolean result = false;
-        result = photoDateAdapter.removePhotoByUri(uri);
-        result = photoBucketAdapter.removeByUri(uri);
-        if(result == true) {
-            photoDateAdapter.notifyDataSetChanged();
-            photoBucketAdapter.notifyDataSetChanged();
-        }
-    }
-
-    // Broadcast Receiver to receive info whenever there is some changes
-    public class MediaBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Bundle bundle = intent.getExtras();
-            String key = bundle.getString("key");
-
-            if(key.equals("add"))
-            {
-                Photo newPhoto = bundle.getParcelable("photo");
+            if (data != null) {
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
                 try {
-                    addPhoto(newPhoto);
-                } catch (ParseException e) {
+                    BitmapFileUtils.saveImageToStorage(this, photo, BitmapFileUtils.CAMERA);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-            else {
-                String uriStr = bundle.getString("uri");
-                Uri removedUri = Uri.parse(uriStr);
-                removePhoto(removedUri);
+            } else {
+                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
 
 }

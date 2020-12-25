@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,15 +27,19 @@ import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
 import com.example.android.photogallery.R;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.ViewHolder> {
+    private boolean isFakeOn = false;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public ImageView imageView1, imageView2, imageView3, imageView4;
         public TextView title, morePhotos;
         private AlbumClickListener albumClickListener;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,10 +68,11 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
     private ArrayList<PhotoCategory> mPhotoCategoryList;
     private Context mContext;
 
-    public AlbumsAdapter(Context context) {
+    public AlbumsAdapter(Context context,boolean isFake) {
         super(DIFF_CALLBACK);
         mPhotoCategoryList = new ArrayList<PhotoCategory>();
         mContext = context;
+        isFakeOn = isFake;
     }
 
 
@@ -94,16 +99,6 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         }
     }
 
-    public boolean removeByUri(Uri uri) {
-        boolean result = false;
-        for(int i = 0; i < mPhotoCategoryList.size(); i++) {
-            result = mPhotoCategoryList.get(i).removeByUri(uri);
-            if(result == true) {
-                break;
-            }
-        }
-        return result;
-    }
 
     @NonNull
     @Override
@@ -142,7 +137,23 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             Photo currentPhoto = currentPhotoList.get(i);
             ImageView imageView = imageList.get(i);
 
-            MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
+            if (!isFakeOn) {
+                MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
+            } else {
+                Log.e("TAG","K biet" + isFakeOn);
+                Drawable drawable = null;
+                try {
+                    InputStream inputStream = mContext.getContentResolver().openInputStream(currentPhoto.get_imageUri());
+                    drawable = Drawable.createFromStream(inputStream, currentPhoto.get_imageUri().toString() );
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                if (drawable != null) {
+                    imageView.setImageDrawable(drawable);
+                } else {
+                    imageView.setImageResource(R.drawable.mainbg_gradient);
+                }
+            }
         }
         holder.setAlbumClickListener(new AlbumClickListener() {
             @Override
@@ -151,6 +162,7 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
                 bundle.putParcelableArrayList("albumPhotoList", currentPhotoList);
                 bundle.putString("albumName", title);
                 bundle.putInt("albumNumberofPhotos", Integer.valueOf(numberOfPhotos));
+                bundle.putBoolean("isFake",isFakeOn);
                 Intent callAlbumActivity = new Intent(mContext, AlbumActivity.class);
                 callAlbumActivity.putExtras(bundle);
                 mContext.startActivity(callAlbumActivity);

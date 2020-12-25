@@ -32,7 +32,6 @@ public class LockTypeActivity extends AppCompatActivity implements View.OnClickL
 
     private static final int SET_LOCK_REQUEST_CODE = 1;
     private static final int LOCK_REQUEST_CODE = 5;
-    private static final int IS_LOCK_REQUEST = 401;
 
     LinearLayout linPinCode, linFingerPrint, linNone;
 

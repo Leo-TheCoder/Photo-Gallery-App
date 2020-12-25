@@ -1,7 +1,6 @@
 package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,8 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
 
     private GridLayoutManager layoutManager;
 
+    private boolean isFakeOn = false;
+
 
 
     // Provide a direct reference to each of the views within a data item
@@ -55,10 +56,11 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
     private ArrayList<PhotoCategory> _photoCategoryList;
     private Context mContext;
 
-    public PhotoCategoryAdapter(Context context) {
+    public PhotoCategoryAdapter(Context context,boolean isFake) {
         super(DIFF_CALLBACK);
         _photoCategoryList = new ArrayList<PhotoCategory>();
         mContext = context;
+        isFakeOn = isFake;
     }
 
     @NonNull
@@ -98,7 +100,7 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
         // Since this is a nested layout, so to define how many child items
         // should be prefetched when the child RecyclerView is nested
         // inside the parent RecyclerView, we use the following method
-        PhotosAdapter photosAdapter = new PhotosAdapter(mContext);
+        PhotosAdapter photosAdapter = new PhotosAdapter(mContext,isFakeOn);
         photosAdapter.addMorePhoto(currentPhotoCategory.get_photosList());
         layoutManager.setInitialPrefetchItemCount(
                 currentPhotoCategory.get_photosList().size());
@@ -183,22 +185,6 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
             _photoCategoryList.add(newPhotoDate);
             submitList(_photoCategoryList);
         }
-    }
-
-    public boolean removePhotoByUri(Uri uri) {
-        boolean result = false;
-        for(int i = 0; i < _photoCategoryList.size(); i++) {
-            result = _photoCategoryList.get(i).removeByUri(uri);
-
-            if(result == true) {
-                if(_photoCategoryList.get(i).get_photosList().isEmpty()){
-                    _photoCategoryList.remove(i);
-                }
-                submitList(_photoCategoryList);
-                break;
-            }
-        }
-        return result;
     }
 
 

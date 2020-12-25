@@ -2,6 +2,7 @@ package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,9 +23,13 @@ import com.example.android.photogallery.PhotoDisplayActivity;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.R;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
+
+    private boolean isFakeOn = false;
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
@@ -71,10 +76,11 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
     private ArrayList<Photo> _photosList;
     private Context mContext;
 
-    public PhotosAdapter(Context context){
+    public PhotosAdapter(Context context, boolean isFake){
         super(DIFF_CALLBACK);
         _photosList = new ArrayList<Photo>();
         mContext = context;
+        isFakeOn = isFake;
     }
 
 
@@ -100,7 +106,23 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
         ImageView imageView =  holder.photoImageView;
 
         //Load image to show
-        MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
+        if(!isFakeOn){
+            MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
+        } else {
+            Log.e("TAG","K biet" + isFakeOn);
+            Drawable drawable = null;
+            try {
+                InputStream inputStream = mContext.getContentResolver().openInputStream(currentPhoto.get_imageUri());
+                drawable = Drawable.createFromStream(inputStream, currentPhoto.get_imageUri().toString() );
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (drawable != null) {
+                imageView.setImageDrawable(drawable);
+            } else {
+                imageView.setImageResource(R.drawable.mainbg_gradient);
+            }
+        }
 
         holder.setItemClickListener(new ItemClickListener() {
             @Override

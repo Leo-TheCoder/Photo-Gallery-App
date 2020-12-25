@@ -2,6 +2,7 @@ package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,20 +23,23 @@ import com.example.android.photogallery.PhotoDisplayActivity;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.R;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<Photo> _photosList;
-
+    private boolean isFakeOn = false;
     /**
      * Public constructor
      * @param context
      */
-    public SpecificAlbumAdapter(Context context){
+    public SpecificAlbumAdapter(Context context,boolean isFake){
         super(DIFF_CALLBACK);
         _photosList = new ArrayList<Photo>();
         mContext = context;
+        isFakeOn = isFake;
     }
 
     public static final DiffUtil.ItemCallback<Photo> DIFF_CALLBACK =
@@ -97,7 +101,24 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-        MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
+
+        if (!isFakeOn) {
+            MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
+        }else {
+            Log.e("TAG","K biet" + isFakeOn);
+            Drawable drawable = null;
+            try {
+                InputStream inputStream = mContext.getContentResolver().openInputStream(currentPhoto.get_imageUri());
+                drawable = Drawable.createFromStream(inputStream, currentPhoto.get_imageUri().toString() );
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (drawable != null) {
+                imageView.setImageDrawable(drawable);
+            } else {
+                imageView.setImageResource(R.drawable.mainbg_gradient);
+            }
+        }
 
 
         /**
