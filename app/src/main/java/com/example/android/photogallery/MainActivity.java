@@ -4,14 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -29,6 +34,7 @@ import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
+import com.example.android.photogallery.Service.MediaTrackerService;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
@@ -36,6 +42,7 @@ import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageButton btnMenuList;
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
-    private final String KEY_LIST_PHOTOS = "keyList";
+    private Intent myService;
 
     private boolean isFakeOn = false;
 
@@ -65,35 +72,45 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         //Get photos from system
         //...
         PhotoUtils.externalStoragePermissionCheck(this);
-        PhotoUtils.generateFakeImageList(this);
-        PhotoUtils.getAllImageFromExternal(this);
 
         if (isLock()) {
             isFakeOn = true;
             myPhotoList = PhotoUtils.getFakeImages();
+            Log.e("Size",": "+myPhotoList.size());
+            if(myPhotoList.size() == 0) {
+                PhotoUtils.generateFakeImageList(this);
+                myPhotoList = PhotoUtils.getFakeImages();
+            }
 
         } else {
             isFakeOn = false;
             myPhotoList = PhotoUtils.getImagesFromExternal();
+            if(myPhotoList.size() == 0) {
+                PhotoUtils.getAllImageFromExternal(this);
+                myPhotoList = PhotoUtils.getImagesFromExternal();
+            }
         }
 
-        Log.e("TAG", "true? " + isFakeOn);
+        myService = new Intent(this, MediaTrackerService.class);
+        startService(myService);
+
+        IntentFilter filter = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE);
+        BroadcastReceiver receiver = new MediaBroadcastReceiver();
+        registerReceiver(receiver, filter);
+
         setContentView(R.layout.activity_main);
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
 
-        //Initialize 2 adapter for recycler view
-        //....
         setMyAdapter();
 
         //Initialize tab layout for our viewpager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         new TabLayoutMediator(tabLayout, viewPager, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
@@ -117,6 +134,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //Initialize 2 adapter for recycler view
+    //....
     void setMyAdapter() {
         photoDateAdapter = new PhotoCategoryAdapter(this, isFakeOn);
         photoBucketAdapter = new AlbumsAdapter(this,isFakeOn);
@@ -148,37 +167,34 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setPageTransformer(new ZoomOutPageTransformer()); //Animation when transfer page
     }
 
-
     /**
      * function that navigate user to setting activity
      */
-    void navigateToSetting() {
+    void navigateToSetting(){
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
     }
 
     /**
      * Check if the app is locked
-     *
      * @return boolean value
      */
     boolean isLock() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
-        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE, false);
+        SharedPreferences sharedPreferences =  getSharedPreferences(LockActivity.SHARE_PREFERENCES, MODE_PRIVATE);
+        return sharedPreferences.getBoolean(LockActivity.KEY_PIN_CODE,false);
     }
 
 
     /**
      * function that pop up the menu when button More got hit
-     *
      * @param v the view that got hit
      */
-    public void showPopup(View v) {
+    public void showPopup(View v){
         PopupMenu popupMenu = new PopupMenu(this, btnMenuList);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
+                switch (menuItem.getItemId()){
                     case R.id.MainSettingMenuItem:
                         navigateToSetting();
                         return true;
@@ -197,17 +213,12 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
     }
-
-    /**
-     * function that create an intent to open camera
-     *
-     * @no params
-     */
-
     private void openCamera() {
-        Log.e("TAG", getExternalFilesDir(null).toString());
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            dispatchTakePictureIntent();
+        }
     }
 
     @Override
@@ -217,8 +228,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
 
-                openCamera();
-
+                dispatchTakePictureIntent();
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
@@ -238,23 +248,70 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             } else {
                 myPhotoList = PhotoUtils.getImagesFromExternal();
+                if(myPhotoList.size() == 0){
+                    PhotoUtils.getAllImageFromExternal(MainActivity.this);
+                    myPhotoList = PhotoUtils.getImagesFromExternal();
+                }
                 isFakeOn = false;
                 setMyAdapter();
             }
         }
 
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
-            if (data != null) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                try {
-                    BitmapFileUtils.saveImageToStorage(this, photo, BitmapFileUtils.CAMERA);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
+            try {
+                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)){
+                    Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
+                };
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
+
+    public void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = BitmapFileUtils.createImageFile(this);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    // Broadcast Receiver to receive info whenever there is some changes
+    public class MediaBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+
+            ArrayList<PhotoCategory> datePhotos = bundle.getParcelableArrayList("dateList");
+            ArrayList<PhotoCategory> albumPhotos = bundle.getParcelableArrayList("albumList");
+
+            onChangeDataDatePhotos(datePhotos);
+            onChangeDataAlbumPhotos(albumPhotos);
+
+        }
+        public void onChangeDataDatePhotos(ArrayList<PhotoCategory> datePhotos) {
+            photoDateAdapter.submitList(datePhotos);
+        }
+        public void onChangeDataAlbumPhotos(ArrayList<PhotoCategory> datePhotos) {
+            photoBucketAdapter.submitList(datePhotos);
+        }
+
+    }
+
 
 }

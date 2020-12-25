@@ -1,16 +1,23 @@
 package com.example.android.photogallery;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,21 +35,27 @@ import android.widget.Toast;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int MY_CAMERA_PERMISSION_CODE = 200;
+    private static final int TRASH_IMAGE_REQUEST = 201;
+    private static final int FAV_IMAGE_REQUEST = 202;
 
     private boolean settingPop = true;
 
-    ImageButton btnShare, btnMore,btnBack;
+    ImageButton btnShare, btnMore, btnBack, btnEdit, btnDelete,btnFavorite;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
 
+    private boolean isFakeOn = false;
+
 
     static Uri photoUri;
-
+    private Photo thisPhoto;
+    String sendingUri;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -52,14 +65,26 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         Intent callingIntent = getIntent();
         Bundle bundle = callingIntent.getExtras();
+        isFakeOn = bundle.getBoolean("isFake");
         ArrayList<Photo> myPhotoList = bundle.getParcelableArrayList("listPhoto");
         Log.i("SIZE", "" + myPhotoList.size());
 
         int position = bundle.getInt("position");
+        thisPhoto = myPhotoList.get(position);
 
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
-        btnBack = (ImageButton)findViewById(R.id.btnBack);
+        btnBack = (ImageButton) findViewById(R.id.btnBack);
+        btnDelete = (ImageButton) findViewById(R.id.btnDelete);
+        btnEdit = (ImageButton) findViewById(R.id.btnEdit);
+        btnFavorite = (ImageButton) findViewById(R.id.btnFavorite);
+        if(thisPhoto.is_favorite()){
+            btnFavorite.setImageResource(R.drawable.baseline_favorite_border_red_24dp);
+        }
+        else {
+            btnFavorite.setImageResource(R.drawable.baseline_favorite_border_white_24dp);
+        }
+
         imageDisplay = (TouchImageView) findViewById(R.id.show_main_photo);
         linearTopNav = (LinearLayout) findViewById(R.id.linearTopNav);
         linearBottomSetting = (LinearLayout) findViewById(R.id.linearBottomSetting);
@@ -69,6 +94,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnBack.setOnClickListener(this);
 
         photoUri = myPhotoList.get(position).get_imageUri();
+        sendingUri = photoUri.toString();
         imageDisplay.setImageURI(photoUri);
 
         imageDisplay.setOnClickListener(new View.OnClickListener() {
@@ -100,6 +126,17 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             }
         });
         btnMore.setOnClickListener(this);
+        btnEdit.setOnClickListener(this);
+        btnFavorite.setOnClickListener(this);
+        btnDelete.setOnClickListener(this);
+
+        if(isFakeOn){
+            btnDelete.setEnabled(false);
+            btnFavorite.setEnabled(false);
+            btnMore.setEnabled(false);
+            btnEdit.setEnabled(false);
+            btnShare.setEnabled(false);
+        }
     }
 
     @Override
@@ -109,9 +146,69 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
             startActivity(shareImageIntent);
         } else if (view.getId() == btnMore.getId()) {
             showPopup(view);
-        } else if (view.getId() == btnBack.getId()){
+        } else if (view.getId() == btnEdit.getId()) {
+            Log.i("CLICK EDIT", "" + sendingUri);
+            Intent photoEditIntent = new Intent(this, EditPhotoActivity.class);
+            photoEditIntent.putExtra("photoUri", sendingUri);
+            this.startActivity(photoEditIntent);
+        } else if (view.getId() == btnDelete.getId()) {
+            deleteOrFavoriteImage(true);
+        }else if (view.getId() == btnFavorite.getId()) {
+            deleteOrFavoriteImage(false);
+        }
+        else if (view.getId() == btnBack.getId()) {
             finish();
         }
+    }
+
+    /**
+     * Show a message dialog ask whether user want to trash the image
+     */
+    void deleteOrFavoriteImage(boolean isTrash) {
+        // change this if query multi images at a time
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(photoUri);
+
+        PendingIntent pendingIntent = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (isTrash) {
+                pendingIntent = MediaStore.createTrashRequest(
+                        getContentResolver(), uris
+                        , true);
+                try {
+                    PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),TRASH_IMAGE_REQUEST, null, 0, 0, 0);
+                    Log.e("TAG","Sended!!!");
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if(!thisPhoto.is_favorite()) {
+                    pendingIntent = MediaStore.createFavoriteRequest(
+                            getContentResolver(), uris
+                            , true);
+                    btnFavorite.setImageResource(R.drawable.baseline_favorite_border_red_24dp);
+                }
+                else {
+                    pendingIntent = MediaStore.createFavoriteRequest(
+                            getContentResolver(), uris
+                            , false);
+                    btnFavorite.setImageResource(R.drawable.baseline_favorite_border_white_24dp);
+                }
+
+                try {
+                    PhotoDisplayActivity.this.startIntentSenderForResult(pendingIntent.getIntentSender(),FAV_IMAGE_REQUEST, null, 0, 0, 0);
+                    Log.e("TAG","Sended!!!");
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else {
+
+        }
+
+
     }
 
     /**
@@ -146,10 +243,12 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
      */
 
     private void openCamera() {
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+        } else {
+            dispatchTakePictureIntent();
+        }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -157,7 +256,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-                openCamera();
+
+                dispatchTakePictureIntent();
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
@@ -171,17 +271,19 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == BitmapFileUtils.REQUEST_IMAGE_CAPTURE) {
-            if (data != null) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                try {
-                    BitmapFileUtils.saveImageToStorage(this,photo, BitmapFileUtils.CAMERA);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try {
+                if (!BitmapFileUtils.saveImageCapturedByCameraToStorage(this, BitmapFileUtils.CAMERA)) {
+                    Toast.makeText(this, "Error saving picture!!!", Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(this, "Error while saving image!!! Please Try again!!!", Toast.LENGTH_SHORT).show();
+                ;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        } else if (requestCode == TRASH_IMAGE_REQUEST){
+            if (resultCode == RESULT_OK)
+                finish();
         }
     }
 
@@ -210,5 +312,31 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         shareIntent.putExtra(Intent.EXTRA_STREAM, photoUri);
         return shareIntent;
     }
-}
 
+
+    /**
+     * calling camera
+     */
+    public void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = BitmapFileUtils.createImageFile(this);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                ex.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, BitmapFileUtils.REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+}

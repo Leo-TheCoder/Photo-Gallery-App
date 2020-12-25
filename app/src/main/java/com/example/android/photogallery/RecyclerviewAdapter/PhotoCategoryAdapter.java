@@ -1,9 +1,12 @@
 package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,8 +33,6 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
     private GridLayoutManager layoutManager;
 
     private boolean isFakeOn = false;
-
-
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
@@ -187,6 +188,22 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
         }
     }
 
+    public boolean removePhotoByUri(Uri uri) {
+        boolean result = false;
+        for(int i = 0; i < _photoCategoryList.size(); i++) {
+            result = _photoCategoryList.get(i).removeByUri(uri);
+
+            if(result == true) {
+                if(_photoCategoryList.get(i).get_photosList().isEmpty()){
+                    _photoCategoryList.remove(i);
+                }
+                submitList(_photoCategoryList);
+                break;
+            }
+        }
+        return result;
+    }
+
 
     public static final DiffUtil.ItemCallback<PhotoCategory> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<PhotoCategory>() {
@@ -200,4 +217,16 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
                     return (oldItem.get_photosList().equals(newItem.get_photosList()));
                 }
             };
+
+    public void updateList(ArrayList<PhotoCategory> newList) {
+        _photoCategoryList = new ArrayList<PhotoCategory>(newList);
+        int count = 0;
+        for(int i =0;i < newList.size(); i++) {
+            count += newList.get(i).get_photosList().size();
+            Log.e("UPDATE", "updateList: " + newList.get(i).get_title() );
+        }
+        Log.e("UPDATE", "COUNT = " + count);
+
+        submitList(_photoCategoryList);
+    }
 }

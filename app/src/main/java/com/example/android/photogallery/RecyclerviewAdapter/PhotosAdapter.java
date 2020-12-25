@@ -132,6 +132,7 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("listPhoto", _photosList);
                 bundle.putInt("position", position);
+                bundle.putBoolean("isFake", isFakeOn);
                 Intent callImageActivity = new Intent(mContext, PhotoDisplayActivity.class);
                 callImageActivity.putExtras(bundle);
                 mContext.startActivity(callImageActivity);
@@ -149,9 +150,8 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
                 @Override
                 public boolean areContentsTheSame(Photo oldItem, Photo newItem) {
                     return (oldItem.get_date().equals(newItem.get_date()) &&
-                            oldItem.get_bucket().equals(newItem.get_bucket()));
+                            oldItem.get_bucket().equals(newItem.get_bucket()) &&
+                            oldItem.is_favorite() == newItem.is_favorite());
                 }
             };
-
-
 }

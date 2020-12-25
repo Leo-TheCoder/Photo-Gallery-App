@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +33,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.ViewHolder> {
+
     private boolean isFakeOn = false;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -40,7 +42,6 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         public TextView title, morePhotos;
         private AlbumClickListener albumClickListener;
 
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -48,7 +49,7 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
             imageView2 = (ImageView) itemView.findViewById(R.id.image_albums_item2);
             imageView3 = (ImageView) itemView.findViewById(R.id.image_albums_item3);
             imageView4 = (ImageView) itemView.findViewById(R.id.image_albums_item4);
-            imageView4.setColorFilter(Color.rgb(88,88,88), PorterDuff.Mode.DARKEN);
+
             title = (TextView) itemView.findViewById(R.id.album_title);
             morePhotos = (TextView) itemView.findViewById(R.id.more_photo_album);
 
@@ -79,6 +80,10 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
     public void addOnePhotoAlbum(Photo newPhoto) {
         boolean flag = false;
         String photoTitle = newPhoto.get_bucket();
+        if(newPhoto.is_favorite()) {
+            photoTitle = "Favorite";
+        }
+
         for (int i = 0; i < mPhotoCategoryList.size(); i++) {
             if (photoTitle.equals(mPhotoCategoryList.get(i).get_title())) {
                 mPhotoCategoryList.get(i).addPhoto(newPhoto);
@@ -99,6 +104,17 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         }
     }
 
+    public boolean removeByUri(Uri uri) {
+        boolean result = false;
+        for(int i = 0; i < mPhotoCategoryList.size(); i++) {
+            result = mPhotoCategoryList.get(i).removeByUri(uri);
+            if(result == true) {
+                submitList(mPhotoCategoryList);
+                break;
+            }
+        }
+        return result;
+    }
 
     @NonNull
     @Override
@@ -129,6 +145,7 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         for(int i = 0; i < numberOfPhotos; i++)
         {
             if(i > 3) {
+                holder.imageView4.setColorFilter(Color.rgb(88,88,88), PorterDuff.Mode.DARKEN);
                 int remainPhotos = numberOfPhotos - 3;
                 holder.morePhotos.setText("" + remainPhotos+"\nmore");
                 break;

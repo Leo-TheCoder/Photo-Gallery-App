@@ -31,6 +31,7 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
     private Context mContext;
     private ArrayList<Photo> _photosList;
     private boolean isFakeOn = false;
+
     /**
      * Public constructor
      * @param context
@@ -41,6 +42,7 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
         mContext = context;
         isFakeOn = isFake;
     }
+
 
     public static final DiffUtil.ItemCallback<Photo> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<Photo>() {
@@ -101,7 +103,6 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
-
         if (!isFakeOn) {
             MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
         }else {
@@ -132,6 +133,7 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("listPhoto", _photosList);
                 bundle.putInt("position", position);
+                bundle.putBoolean("isFake", isFakeOn);
                 Intent callImageActivity = new Intent(mContext, PhotoDisplayActivity.class);
                 callImageActivity.putExtras(bundle);
                 mContext.startActivity(callImageActivity);
