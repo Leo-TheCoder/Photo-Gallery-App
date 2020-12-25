@@ -4,37 +4,48 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
 import android.util.Size;
 
-import androidx.annotation.RequiresApi;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import static com.example.android.photogallery.CachingImage.MemoryCache.addBitmapToMemoryCache;
 
-
-public class RunnableLoadThumbnail implements Runnable {
+public class RunnableLoadFake implements Runnable {
     private Context mContext;
     private Uri resId;
     private MyHandler myHandler;
 
-    public RunnableLoadThumbnail(MyHandler myHandler, Context context, Uri uri) {
+    public RunnableLoadFake(MyHandler myHandler, Context context, Uri uri) {
         this.myHandler = myHandler;
         this.mContext = context;
         this.resId = uri;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     @Override
     public void run() {
         try {
+            InputStream inputStream = mContext.getContentResolver().openInputStream(resId);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-            Bitmap bitmap = mContext.getContentResolver().loadThumbnail(resId, new Size(150,150),null);
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+
+            float bitmapRatio = (float)width / (float) height;
+            if (bitmapRatio > 1) {
+                width = 200;
+                height = (int) (width / bitmapRatio);
+            } else {
+                height = 200;
+                width = (int) (height * bitmapRatio);
+            }
+            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
             Log.e("SIZE", "run: " + bitmap.getByteCount() );
             addBitmapToMemoryCache(resId, bitmap);
 

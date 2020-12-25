@@ -188,12 +188,14 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                             getContentResolver(), uris
                             , true);
                     btnFavorite.setImageResource(R.drawable.baseline_favorite_border_red_24dp);
+                    thisPhoto.set_favorite(true);
                 }
                 else {
                     pendingIntent = MediaStore.createFavoriteRequest(
                             getContentResolver(), uris
                             , false);
                     btnFavorite.setImageResource(R.drawable.baseline_favorite_border_white_24dp);
+                    thisPhoto.set_favorite(false);
                 }
 
                 try {

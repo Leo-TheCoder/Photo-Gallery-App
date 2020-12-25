@@ -2,10 +2,14 @@ package com.example.android.photogallery.RecyclerviewAdapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +27,12 @@ import com.example.android.photogallery.PhotoDisplayActivity;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.R;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter.ViewHolder> {
@@ -105,20 +113,8 @@ public class SpecificAlbumAdapter extends ListAdapter<Photo,SpecificAlbumAdapter
 //        }
         if (!isFakeOn) {
             MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
-        }else {
-            Log.e("TAG","K biet" + isFakeOn);
-            Drawable drawable = null;
-            try {
-                InputStream inputStream = mContext.getContentResolver().openInputStream(currentPhoto.get_imageUri());
-                drawable = Drawable.createFromStream(inputStream, currentPhoto.get_imageUri().toString() );
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (drawable != null) {
-                imageView.setImageDrawable(drawable);
-            } else {
-                imageView.setImageResource(R.drawable.mainbg_gradient);
-            }
+        } else {
+            MemoryCache.loadBitmapFake(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
         }
 
 

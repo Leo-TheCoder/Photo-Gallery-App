@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,19 +110,7 @@ public class PhotosAdapter extends ListAdapter<Photo,PhotosAdapter.ViewHolder> {
         if(!isFakeOn){
             MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(),imageView, new MyHandler(imageView));
         } else {
-            Log.e("TAG","K biet" + isFakeOn);
-            Drawable drawable = null;
-            try {
-                InputStream inputStream = mContext.getContentResolver().openInputStream(currentPhoto.get_imageUri());
-                drawable = Drawable.createFromStream(inputStream, currentPhoto.get_imageUri().toString() );
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (drawable != null) {
-                imageView.setImageDrawable(drawable);
-            } else {
-                imageView.setImageResource(R.drawable.mainbg_gradient);
-            }
+            MemoryCache.loadBitmapFake(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
         }
 
         holder.setItemClickListener(new ItemClickListener() {

@@ -1,5 +1,6 @@
 package com.example.android.photogallery.CachingImage;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -48,6 +49,16 @@ public class MemoryCache {
         } else {
             mImageView.setImageResource(R.drawable.mainbg_gradient);
             new Thread(new RunnableLoadThumbnail(handler, mContext, resId)).start();
+        }
+    }
+
+    public static void loadBitmapFake(final Context mContext, Uri resId, ImageView mImageView, MyHandler handler) {
+        Bitmap bitmap = getBitmapFromMemCache(resId);
+        if(bitmap!= null) {
+            mImageView.setImageBitmap(bitmap);
+        } else {
+            mImageView.setImageResource(R.drawable.mainbg_gradient);
+            new Thread(new RunnableLoadFake(handler, mContext, resId)).start();
         }
     }
 
