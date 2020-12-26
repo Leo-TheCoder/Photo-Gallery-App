@@ -14,7 +14,6 @@
         android:layout_above="@id/outlinedTextField"
         android:text="Enter Pin Code"
         android:textSize="20sp"
-        android:textColor="#000000"
         android:fontFamily="sans-serif-black"/>
 
     <com.google.android.material.textfield.TextInputLayout

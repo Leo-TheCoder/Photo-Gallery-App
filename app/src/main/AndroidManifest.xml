@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.android.photogallery">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature android:name="android.hardware.type.watch" />
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:required="true" />
@@ -28,20 +32,28 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.Bosuta">
+        <!--
+               Set to true if your app is Standalone, that is, it does not require the handheld
+               app to run.
+        -->
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
+
         <service
             android:name=".Service.MediaTrackerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity android:name=".LockActivity" />
         <activity android:name=".LockTypeActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".PhotoDisplayActivity" />
-        <activity android:name=".EditPhotoActivity"/>
+        <activity android:name=".EditPhotoActivity" />
         <activity
             android:name=".SplashScreenActivity"
-            android:theme="@style/SplashscreenTheme">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,21 +62,15 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/MainTheme"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".AlbumActivity"
             android:windowSoftInputMode="adjustNothing" />
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.android.photogallery.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
+        <activity
+            android:name=".ThemeActivity"
+            android:label="@string/title_activity_theme"
+            android:windowSoftInputMode="adjustNothing" />
     </application>
 
 </manifest>

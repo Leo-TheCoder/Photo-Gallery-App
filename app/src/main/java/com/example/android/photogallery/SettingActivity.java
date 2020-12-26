@@ -39,7 +39,8 @@ public class SettingActivity extends AppCompatActivity  implements View.OnClickL
         if (view.getId() == accountBtn.getId()){
 
         } else if (view.getId() == themeBtn.getId()){
-
+            Intent themeIntent = new Intent(this, ThemeActivity.class);
+            startActivity(themeIntent);
         }  else if (view.getId() == displayModeBtn.getId()) {
 
         } else if (view.getId() == secureBtn.getId()){

@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/white">
+    android:orientation="vertical">
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -46,5 +45,6 @@
         android:id="@+id/tab_layout"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="bottom"
+        android:elevation="8dp"/>
 </LinearLayout>
