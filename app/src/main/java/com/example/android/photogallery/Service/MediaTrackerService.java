@@ -18,15 +18,20 @@ import androidx.annotation.Nullable;
 import com.example.android.photogallery.MainActivity;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
+import com.example.android.photogallery.Models.Video;
+import com.example.android.photogallery.Models.VideoCategory;
 import com.example.android.photogallery.Utils.PhotoUtils;
+import com.example.android.photogallery.Utils.VideoUtils;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class MediaTrackerService extends Service {
-    private ContentObserver contentObserver;
-    public final static String SERVICE_ACTION_CODE = "android.action.UPDATE";
+    private ContentObserver contentObserverImage;
+    private ContentObserver contentObserverVideo;
+    public final static String SERVICE_ACTION_CODE_IMAGE = "android.action.UPDATE_IMAGE";
+    public final static String SERVICE_ACTION_CODE_VIDEO = "android.action.UPDATE_VIDEO";
     public MediaTrackerService() {
     }
 
@@ -39,8 +44,8 @@ public class MediaTrackerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Register Content Observer for observe there is some image's changes !
-        getContentResolver().registerContentObserver(PhotoUtils.EXTERNAL_URI, true, contentObserver);
-
+        getContentResolver().registerContentObserver(PhotoUtils.EXTERNAL_URI, true, contentObserverImage);
+        getContentResolver().registerContentObserver(VideoUtils.EXTERNAL_URI, true, contentObserverVideo);
 
         return START_STICKY;
     }
@@ -48,7 +53,7 @@ public class MediaTrackerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        contentObserver = new ContentObserver(new Handler(Looper.myLooper())) {
+        contentObserverImage = new ContentObserver(new Handler(Looper.myLooper())) {
             private void addPhotoToDateList(ArrayList<PhotoCategory> datePhotos, Photo photo) throws ParseException {
                 Date dateCategory;
                 Date dateNewPhoto = null;
@@ -128,89 +133,76 @@ public class MediaTrackerService extends Service {
                         e.printStackTrace();
                     }
                 }
-                Intent broadcast = new Intent(SERVICE_ACTION_CODE);
+                Intent broadcast = new Intent(SERVICE_ACTION_CODE_IMAGE);
                 Bundle sendBundle = new Bundle();
                 sendBundle.putParcelableArrayList("dateList", datePhotos);
                 sendBundle.putParcelableArrayList("albumList", albumPhotos);
                 broadcast.putExtras(sendBundle);
                 sendBroadcast(broadcast);
-
-                //Still update
+            }
+        };
+        contentObserverVideo = new ContentObserver(new Handler(Looper.myLooper())) {
+            private void addOneVideoDateCategory(ArrayList<VideoCategory> dateVideos, Video newVideo) throws ParseException {
+                Date dateCategory;
+                Date dateNewVideo = MainActivity.Formatter.parse(newVideo.get_dateTitle());
+                boolean flag = false;
+                for (int i = 0; i < dateVideos.size(); i++) {
+                    dateCategory = MainActivity.Formatter.parse(dateVideos.get(i).get_title());
+                    if (dateNewVideo.equals(dateCategory)) {
+                        dateVideos.get(i).addVideo(newVideo);
+                        flag = true;
+                        break;
+                    } else if (dateNewVideo.after(dateCategory)) {
+                        VideoCategory newVideoDate = new VideoCategory(
+                                VideoCategory.CATEGORY_DATE,
+                                newVideo.get_dateTitle(),
+                                new ArrayList<Video>(),
+                                null);
+                        newVideoDate.addVideo(newVideo);
+                        dateVideos.add(i, newVideoDate);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag == false) {
+                    VideoCategory newVideoDate = new VideoCategory(
+                            VideoCategory.CATEGORY_DATE,
+                            newVideo.get_dateTitle(),
+                            new ArrayList<Video>(),
+                            null);
+                    newVideoDate.addVideo(newVideo);
+                    dateVideos.add(newVideoDate);
+                }
             }
 
-//            /**
-//             * Function for API >= 16
-//             * @param selfChange
-//             * @param uri
-//             */
-//            @Override
-//            public void onChange(boolean selfChange, @Nullable Uri uri) {
-//                super.onChange(selfChange, uri);
-//                String[] projection = {MediaStore.Images.Media._ID,
-//                        MediaStore.Images.Media.BUCKET_ID,
-//                        MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-//                        MediaStore.Images.Media.DATE_TAKEN,
-//                        MediaStore.Images.Media.DATE_MODIFIED,
-//                        MediaStore.Images.Media.DATE_ADDED,
-//                        MediaStore.Images.Media.IS_FAVORITE};
-//
-//                Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-//
-//                Intent broadcast = new Intent(SERVICE_ACTION_CODE);
-//                Bundle sendBundle = new Bundle();
-//
-//                Log.i("SERVICE", "onChange: " + uri);
-//                if (cursor.moveToFirst()) {
-//                    String id, bucket, isFavorite;
-//                    Long dateTaken = 0L, dateModif = 0L, dateAdded = 0L;
-//
-//                    //get column Index
-//                    int bucketColumn = cursor.getColumnIndex(
-//                            MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-//                    int dateTakenColumn = cursor.getColumnIndex(
-//                            MediaStore.Images.Media.DATE_TAKEN);
-//                    int dateModifiedColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED);
-//                    int dateAddedColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
-//                    int idColumn = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-//                    int favColumn = cursor.getColumnIndex(MediaStore.Images.Media.IS_FAVORITE);
-//
-//                    bucket = cursor.getString(bucketColumn);
-//                    isFavorite = cursor.getString(favColumn);
-//                    dateTaken = cursor.getLong(dateTakenColumn);
-//                    dateModif = cursor.getLong(dateModifiedColumn);
-//                    dateAdded = cursor.getLong(dateAddedColumn);
-//
-//                    id = cursor.getString(idColumn);
-//                    Log.i("TEST", "date= " + dateTaken + " bucket= " + bucket + " id= " + id);
-//
-//
-//                    Date DateFromEpocTime = null;
-//                    if (dateAdded != 0) {
-//                        DateFromEpocTime = new Date(dateAdded * 1000L);
-//                    } else if (dateTaken != 0) {
-//                        DateFromEpocTime = new Date(dateTaken);
-//                    } else if (dateModif != 0) {
-//                        DateFromEpocTime = new Date(dateModif * 1000L);
-//                    }
-//
-//
-//                    sendBundle.putParcelable("photo", new Photo(bucket, DateFromEpocTime, uri, isFavorite.equals("1")));
-//                    sendBundle.putString("key", "add");
-//                    broadcast.putExtras(sendBundle);
-//                }
-//                else {
-//                    sendBundle.putString("key", "remove");
-//                    sendBundle.putString("uri", "" + uri);
-//                    broadcast.putExtras(sendBundle);
-//                }
-//                sendBroadcast(broadcast);
-//            }
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                VideoUtils.getAllVideoFromExternal(getApplicationContext());
+                ArrayList<Video> myUpdateList = VideoUtils.getVideosFromExternal();
+                ArrayList<VideoCategory> dateVideos = new ArrayList<VideoCategory>();
+
+                for(int i = 0; i< myUpdateList.size(); i++) {
+                    try {
+                        addOneVideoDateCategory(dateVideos, myUpdateList.get(i));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Intent broadcast = new Intent(SERVICE_ACTION_CODE_VIDEO);
+                Bundle sendBundle = new Bundle();
+                sendBundle.putParcelableArrayList("videoList", dateVideos);
+                broadcast.putExtras(sendBundle);
+                sendBroadcast(broadcast);
+            }
         };
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getContentResolver().unregisterContentObserver(contentObserver);
+        getContentResolver().unregisterContentObserver(contentObserverImage);
+        getContentResolver().unregisterContentObserver(contentObserverVideo);
     }
 }
