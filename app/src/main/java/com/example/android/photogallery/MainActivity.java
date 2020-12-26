@@ -34,11 +34,15 @@ import com.example.android.photogallery.CachingImage.MemoryCache;
 import com.example.android.photogallery.Fragments.MainUIAdapter;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
+import com.example.android.photogallery.Models.Video;
+import com.example.android.photogallery.Models.VideoCategory;
+import com.example.android.photogallery.RecyclerviewAdapter.VideoCategoryAdapter;
 import com.example.android.photogallery.Service.MediaTrackerService;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
 import com.example.android.photogallery.RecyclerviewAdapter.AlbumsAdapter;
 import com.example.android.photogallery.RecyclerviewAdapter.PhotoCategoryAdapter;
+import com.example.android.photogallery.Utils.VideoUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -52,21 +56,23 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     public final static SimpleDateFormat Formatter = new SimpleDateFormat(Photo.DATE_FORMAT, Locale.ENGLISH);
     private static final int MY_CAMERA_PERMISSION_CODE = 101;
-    public final static int PAGE_NUMBER = 2;
+    public final static int PAGE_NUMBER = 3;
     public final static int IS_LOCK_REQUEST = 100;
-    private CharSequence[] tabTitle = {"PHOTOS", "ALBUM"};
+    private CharSequence[] tabTitle = {"PHOTOS", "ALBUM", "VIDEOS"};
 
     private ViewPager2 viewPager;
     private MainUIAdapter myAdapter;
 
     private ImageButton btnMenuList;
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
+    private ArrayList<Video> myVideoList = new ArrayList<Video>();
     private Intent myService;
 
     private boolean isFakeOn = false;
 
     private PhotoCategoryAdapter photoDateAdapter = null;
     private AlbumsAdapter photoBucketAdapter = null;
+    private VideoCategoryAdapter videoDateAdapter = null;
     private int signal = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -89,18 +95,28 @@ public class MainActivity extends AppCompatActivity {
         } else {
             isFakeOn = false;
             myPhotoList = PhotoUtils.getImagesFromExternal();
+            myVideoList = VideoUtils.getVideosFromExternal();
             if(myPhotoList.size() == 0) {
                 PhotoUtils.getAllImageFromExternal(this);
                 myPhotoList = PhotoUtils.getImagesFromExternal();
+            }
+
+            if(myVideoList.size() == 0) {
+                VideoUtils.getAllVideoFromExternal(this);
+                myVideoList = VideoUtils.getVideosFromExternal();
             }
         }
 
         myService = new Intent(this, MediaTrackerService.class);
         startService(myService);
 
-        IntentFilter filter = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE);
-        BroadcastReceiver receiver = new MediaBroadcastReceiver();
-        registerReceiver(receiver, filter);
+        IntentFilter filterImage = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE_IMAGE);
+        BroadcastReceiver receiverImage = new MediaImageBroadcastReceiver();
+        registerReceiver(receiverImage, filterImage);
+
+        IntentFilter filterVideo = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE_VIDEO);
+        BroadcastReceiver receiverVideo = new MediaVideoBroadcastReceiver();
+        registerReceiver(receiverVideo, filterVideo);
 
         setContentView(R.layout.activity_main);
 
@@ -139,12 +155,21 @@ public class MainActivity extends AppCompatActivity {
     void setMyAdapter() {
         photoDateAdapter = new PhotoCategoryAdapter(this, isFakeOn);
         photoBucketAdapter = new AlbumsAdapter(this,isFakeOn);
+        videoDateAdapter = new VideoCategoryAdapter(this, isFakeOn);
         //Initialize 2 adapter for recycler view
         //....
         for (int i = 0; i < myPhotoList.size(); i++) {
             try {
                 photoDateAdapter.addOnePhoto(myPhotoList.get(i), PhotoCategory.CATEGORY_DATE);
                 photoBucketAdapter.addOnePhotoAlbum(myPhotoList.get(i));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for(int i = 0; i< myVideoList.size(); i++) {
+            try {
+                videoDateAdapter.addOneVideo(myVideoList.get(i), VideoCategory.CATEGORY_DATE);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -158,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
         //Get adapters for each fragment
         myAdapter.setPhotosDateAdapter(photoDateAdapter);       //Adapter for Photos fragment
         myAdapter.setPhotosBucketAdapter(photoBucketAdapter);   //Adapter for Albums fragment
+        myAdapter.setVideosDateAdapter(videoDateAdapter);
 
         //Initialize viewpager with our custom adapter
         viewPager = (ViewPager2) findViewById(R.id.viewpager);
@@ -292,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Broadcast Receiver to receive info whenever there is some changes
-    public class MediaBroadcastReceiver extends BroadcastReceiver {
+    public class MediaImageBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
@@ -310,7 +336,16 @@ public class MainActivity extends AppCompatActivity {
         public void onChangeDataAlbumPhotos(ArrayList<PhotoCategory> datePhotos) {
             photoBucketAdapter.submitList(datePhotos);
         }
+    }
 
+    public class MediaVideoBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+
+            ArrayList<VideoCategory> dateVideos = bundle.getParcelableArrayList("videoList");
+            videoDateAdapter.submitList(dateVideos);
+        }
     }
 
 

@@ -78,7 +78,7 @@ public class AlbumActivity extends AppCompatActivity {
         Intent myService = new Intent(this, MediaTrackerService.class);
         startService(myService);
 
-        IntentFilter filter = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE);
+        IntentFilter filter = new IntentFilter(MediaTrackerService.SERVICE_ACTION_CODE_IMAGE);
         BroadcastReceiver receiver = new AlbumActivity.MediaBroadcastReceiver();
         registerReceiver(receiver, filter);
     }
