@@ -14,17 +14,19 @@ public class Video implements Parcelable {
     private Date _date;
     private Long _size;
     private String _displayName;
+    private String _duration;
 
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
     public Video(){}
 
-    public Video(String bucket, Uri videoUri, Date date, Long size, String displayName) {
+    public Video(String bucket, Uri videoUri, Date date, Long size, String displayName, String duration) {
         _bucket = bucket;
         _videoUri = videoUri;
         _date = date;
         _size = size;
         _displayName = displayName;
+        _duration = duration;
     }
 
     protected Video(Parcel in) {

@@ -29,13 +29,14 @@ public class VideoUtils {
                 MediaStore.Video.Media.DATE_MODIFIED,
                 MediaStore.Video.Media.DATE_TAKEN,
                 MediaStore.Video.Media.SIZE,
-                MediaStore.Video.Media.DISPLAY_NAME
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.DURATION
         };
 
         Cursor cursor = context.getContentResolver().query(allVideo, projection, null, null, null);
 
         if (cursor.moveToFirst()) {
-            String id,bucket, displayName;
+            String id,bucket, displayName, duration;
             Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L, size = 0L;
 
             //get column Index
@@ -55,6 +56,8 @@ public class VideoUtils {
 
             int displayNameColumn = cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME);
 
+            int durationColumn = cursor.getColumnIndex(MediaStore.Video.Media.DURATION);
+
             do {
                 // Get the field values
                 bucket = cursor.getString(bucketColumn);
@@ -64,6 +67,7 @@ public class VideoUtils {
                 dateAdded = cursor.getLong(dateAddedColumn);
                 size = cursor.getLong(sizeColumn);
                 displayName = cursor.getString(displayNameColumn);
+                duration = cursor.getString(durationColumn);
                 id = cursor.getString(idColumn);
                 //Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id + " favorite= " + isFavorite);
 
@@ -86,7 +90,7 @@ public class VideoUtils {
                 // Add new loaded photo
                 Log.e(LOG_TAG, "bucket= " + bucket+ " videoUri= " + videoUri + " date= " + DateFromEpocTime +
                         " size= " + size + " displayName= " + displayName);
-                Video newVideo = new Video(bucket, videoUri, DateFromEpocTime, size, displayName);
+                Video newVideo = new Video(bucket, videoUri, DateFromEpocTime, size, displayName, duration);
                 videoList.add(newVideo);
             } while (cursor.moveToNext());
         }
@@ -95,5 +99,18 @@ public class VideoUtils {
 
     public static ArrayList<Video> getVideosFromExternal() {
         return videoList;
+    }
+
+    public static int findIndexOfVideo(Video video) {
+        int result = -1;
+        Uri thisUri = video.get_videoUri();
+        for(int i =0; i < videoList.size(); i ++) {
+            Uri uri = videoList.get(i).get_videoUri();
+            if(uri.equals(thisUri)){
+                result = i;
+                break;
+            }
+        }
+        return result;
     }
 }

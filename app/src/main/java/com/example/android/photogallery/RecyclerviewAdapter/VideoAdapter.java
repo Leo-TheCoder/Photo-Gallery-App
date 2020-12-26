@@ -21,7 +21,9 @@ import com.example.android.photogallery.CachingImage.MyHandler;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.Video;
 import com.example.android.photogallery.PhotoDisplayActivity;
+import com.example.android.photogallery.PlayVideoActivity;
 import com.example.android.photogallery.R;
+import com.example.android.photogallery.Utils.VideoUtils;
 
 import java.util.ArrayList;
 
@@ -112,14 +114,21 @@ public class VideoAdapter extends ListAdapter<Video, VideoAdapter.ViewHolder> {
         holder.setItemClickListener(new ItemClickListener() {
             @Override
             public void onClick(View view, int position, boolean isLongClick) {
-                Video current = getItem(position);
-                Log.i("TEST CLICK", "" + position);
+                int index = VideoUtils.findIndexOfVideo(_videosList.get(position));
+
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("listVideo", _videosList);
-                bundle.putInt("position", position);
+                if(index > -1) {
+                    bundle.putParcelableArrayList("listVideo", VideoUtils.getVideosFromExternal());
+                    bundle.putInt("position", index);
+                }
+                else {
+                    bundle.putParcelableArrayList("listVideo", _videosList);
+                    bundle.putInt("position", position);
+                }
+
                 bundle.putBoolean("isFake", isFakeOn);
                 //
-                Intent callImageActivity = new Intent(mContext, PhotoDisplayActivity.class);
+                Intent callImageActivity = new Intent(mContext, PlayVideoActivity.class);
                 //
                 callImageActivity.putExtras(bundle);
                 mContext.startActivity(callImageActivity);
