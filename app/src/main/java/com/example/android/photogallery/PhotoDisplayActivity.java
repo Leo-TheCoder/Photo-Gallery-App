@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -34,6 +36,7 @@ import android.widget.Toast;
 
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
+import com.example.android.photogallery.Utils.PhotoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +54,6 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     LinearLayout linearTopNav, linearBottomSetting;
 
     private boolean isFakeOn = false;
-
 
     static Uri photoUri;
     private Photo thisPhoto;
@@ -230,6 +232,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                         openCamera();
                     }
                     return true;
+                } else if (menuItem.getItemId() == R.id.photoAddToAlbum){
+                    bucketListDialog();
                 }
                 return false;
             }
@@ -237,6 +241,85 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         popupMenu.inflate(R.menu.photo_menu);
         popupMenu.show();
     }
+
+    /**
+     *
+     */
+    public void bucketListDialog(){
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        builderSingle.setTitle("Select Album Name");
+
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        arrayAdapter.addAll(PhotoUtils.getBucketList());
+
+        builderSingle.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setNeutralButton("NEW ALBUM", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AlertDialog.Builder newAlbumDialog = new AlertDialog.Builder(PhotoDisplayActivity.this);
+
+                newAlbumDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                newAlbumDialog.setTitle(getString(R.string.new_album));
+                newAlbumDialog.setMessage(getString(R.string.album_name));
+
+                final EditText input = new EditText(PhotoDisplayActivity.this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                newAlbumDialog.setView(input); // uncomment this line
+
+                newAlbumDialog.setPositiveButton("ADD", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String bucketName = input.getText().toString();
+                        Log.e("BUCKET: ",bucketName);
+                        if (bucketName.equals("")){
+                            Toast.makeText(PhotoDisplayActivity.this, "Invalid Album Name", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                Log.e("BUCKET: ",bucketName);
+                                if (BitmapFileUtils.moveImageToAnotherBucket(PhotoDisplayActivity.this,photoUri,bucketName)){
+                                    Toast.makeText(PhotoDisplayActivity.this, "Photo Moved Successfully", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(PhotoDisplayActivity.this, "Photo Moved Failed!!!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    }
+                });
+                newAlbumDialog.show();
+            }
+        });
+
+        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String strName = arrayAdapter.getItem(which);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    if (BitmapFileUtils.moveImageToAnotherBucket(PhotoDisplayActivity.this,photoUri,strName)){
+                        Toast.makeText(PhotoDisplayActivity.this, "Photo Moved Successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(PhotoDisplayActivity.this, "Photo Moved Failed!!!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+        builderSingle.show();
+    }
+
 
     /**
      * function that create an intent to open camera
