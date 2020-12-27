@@ -12,6 +12,8 @@
     <string name="retype_pin_code">Retype Pin Code</string>
     <string name="Settings">Settings</string>
     <string name="Camera">Camera</string>
-    <string name="addToAlbum">AddToAlbum</string>
+    <string name="addToAlbum">Add To Album</string>
+    <string name="new_album">NEW ALBUM</string>
+    <string name="album_name">Album name</string>
 
 </resources>

@@ -38,7 +38,8 @@ public class PhotoUtils {
     private static ArrayList<Photo> photosList = new ArrayList<>();
     private static ArrayList<Photo> trashPhotoList = new ArrayList<>();
     private static ArrayList<Uri> imageUrisList = new ArrayList<>();
-    private static ArrayList<Photo> fakePhotoList =  new ArrayList<>();;
+    private static ArrayList<Photo> fakePhotoList =  new ArrayList<>();
+    private static ArrayList<String> bucketList =  new ArrayList<>();
 
     //end region
 
@@ -84,7 +85,7 @@ public class PhotoUtils {
         Log.i(LOG_TAG, " query count=" + cursor.getCount());
 
         if (cursor.moveToFirst()) {
-            String id,bucket,isTrash, isFavorite;
+            String id,bucket,isTrash, isFavorite,prevBucket = "";
             Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
 
             //get column Index
@@ -132,6 +133,12 @@ public class PhotoUtils {
                 Log.i(LOG_TAG, "dateTime= " + dateTime);
                 // Add new loaded photo
 
+                if (!prevBucket.equals(bucket)){
+                    bucketList.add(bucket);
+                    prevBucket = bucket;
+                    Log.e("TAG",prevBucket);
+                }
+
                 Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, isFav);
                 photosList.add(newPhoto);
                 imageUrisList.add(allImageUri);
@@ -146,6 +153,14 @@ public class PhotoUtils {
      */
     public static ArrayList<Photo> getImagesFromExternal() {
         return photosList;
+    }
+    //end region
+
+    /**
+     * @return ArrayList of all bucket
+     */
+    public static ArrayList<String> getBucketList() {
+        return bucketList;
     }
     //end region
 
