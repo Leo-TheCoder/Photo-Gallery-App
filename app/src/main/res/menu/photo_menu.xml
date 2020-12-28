@@ -7,4 +7,8 @@
     <item android:id="@+id/photoAddToAlbum"
         android:title="@string/addToAlbum">
     </item>
+
+    <item android:id="@+id/photoDetail"
+        android:title="@string/photoDetail">
+    </item>
 </menu>

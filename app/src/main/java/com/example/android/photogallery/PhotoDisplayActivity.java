@@ -32,15 +32,22 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 import com.example.android.photogallery.Utils.PhotoUtils;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PhotoDisplayActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int MY_CAMERA_PERMISSION_CODE = 200;
@@ -58,6 +65,10 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     static Uri photoUri;
     private Photo thisPhoto;
     String sendingUri;
+
+    LinearLayout layoutBottomSheet;
+
+    BottomSheetBehavior sheetBehavior;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -234,6 +245,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                     return true;
                 } else if (menuItem.getItemId() == R.id.photoAddToAlbum){
                     bucketListDialog();
+                } else if (menuItem.getItemId() == R.id.photoDetail){
+                    imageDetailDialog();
                 }
                 return false;
             }
@@ -242,8 +255,43 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         popupMenu.show();
     }
 
+    @SuppressLint({"InflateParams", "SetTextI18n"})
+    public void imageDetailDialog(){
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.layout_photo_detail,null);
+        bottomSheetDialog.setContentView(dialogView);
+
+        TextView photoName,photoSize,photoDir,photoDate,photoDes,photoRes;
+        photoName = (TextView)dialogView.findViewById(R.id.photoName);
+        photoSize = (TextView)dialogView.findViewById(R.id.photoSize);
+        photoDir = (TextView)dialogView.findViewById(R.id.photoDir);
+        photoDate = (TextView)dialogView.findViewById(R.id.photoAddedDate);
+        photoDes = (TextView)dialogView.findViewById(R.id.photoDescription);
+        photoRes = (TextView)dialogView.findViewById(R.id.photoResolution);
+
+        Bundle bundle = PhotoUtils.getImageDetails(this,photoUri);
+
+        Date date = new Date(bundle.getLong("DATE_ADDED")*100L);
+
+        photoName.setText(bundle.getString("DISPLAY_NAME"));
+
+        String size = bundle.getString("SIZE");
+
+        photoSize.setText("Size: " + Long.parseLong(size)/1024+ " KB");
+        photoDir.setText(BitmapFileUtils.getFilePath(this,photoUri));
+        photoDate.setText(date.toString());
+        if (bundle.getString("DESCRIPTION") == null){
+            photoDes.setText("No Description !!!");
+        } else {
+            photoDes.setText(bundle.getString("DESCRIPTION"));
+        }
+        photoRes.setText("RES: " + bundle.getString("RESOLUTION"));
+
+        bottomSheetDialog.show();
+    }
+
     /**
-     *
+     * Display a dialog of bucket for user to choose
      */
     public void bucketListDialog(){
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);

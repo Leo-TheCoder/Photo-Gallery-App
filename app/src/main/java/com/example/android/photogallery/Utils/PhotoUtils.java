@@ -1,6 +1,7 @@
 package com.example.android.photogallery.Utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -268,6 +269,59 @@ public class PhotoUtils {
      */
     public static ArrayList<Photo> getFakeImages() {
         return fakePhotoList;
+    }
+
+    /**
+     * Return image details
+     * @param context the current context
+     * @param imageUri uri
+     * @return bundle of image details
+     */
+    @SuppressLint("Recycle")
+    public static Bundle getImageDetails(Context context, Uri imageUri) {
+        Cursor cursor = null;
+        Bundle bundle = new Bundle();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            String[] projection = new String[]{MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.SIZE,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.RESOLUTION,
+                    MediaStore.Images.Media.DESCRIPTION};
+
+            cursor = context.getContentResolver().query(imageUri,
+                    projection,
+                    null,
+                    null);
+
+            if (cursor.moveToFirst()) {
+                int nameColumn = cursor.getColumnIndex(
+                        MediaStore.Images.Media.DISPLAY_NAME);
+
+                int bucketNameCol = cursor.getColumnIndex(
+                        MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+
+                int dateTakenCol = cursor.getColumnIndex(
+                        MediaStore.Images.Media.DATE_ADDED);
+
+                int resolutionCol = cursor.getColumnIndex(
+                        MediaStore.Images.Media.RESOLUTION);
+
+                int desCol = cursor.getColumnIndex(
+                        MediaStore.Images.Media.DESCRIPTION);
+
+                int sizeCol = cursor.getColumnIndex(
+                        MediaStore.Images.Media.SIZE);
+
+                bundle.putString("DISPLAY_NAME",cursor.getString(nameColumn));
+                bundle.putString("BUCKET_DISPLAY_NAME",cursor.getString(bucketNameCol));
+                bundle.putLong("DATE_ADDED",cursor.getLong(dateTakenCol));
+                bundle.putString("RESOLUTION",cursor.getString(resolutionCol));
+                bundle.putString("DESCRIPTION",cursor.getString(desCol));
+                bundle.putString("SIZE",cursor.getString(sizeCol));
+            }
+        }
+        return bundle;
     }
     //end region
 }

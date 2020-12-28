@@ -15,5 +15,6 @@
     <string name="addToAlbum">Add To Album</string>
     <string name="new_album">NEW ALBUM</string>
     <string name="album_name">Album name</string>
+    <string name="photoDetail">Detail</string>
 
 </resources>
