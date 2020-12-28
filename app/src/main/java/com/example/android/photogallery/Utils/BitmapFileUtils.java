@@ -47,7 +47,7 @@ public class BitmapFileUtils {
     private static String currentPhotoPath;
 
     //getting real path from uri
-    private static String getFilePath(Activity callingActivity, Uri uri) {
+    public static String getFilePath(Activity callingActivity, Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
 
         Cursor cursor = callingActivity.getContentResolver().query(uri, projection, null, null, null);
