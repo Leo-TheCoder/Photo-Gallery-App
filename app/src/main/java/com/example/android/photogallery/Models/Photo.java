@@ -14,17 +14,24 @@ public class Photo implements Parcelable {
     private Uri _imageUri;
     private Date _date;
     private boolean _favorite;
+    private String _displayName;
+    private String _relativePath;
+    private long _size;
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 
 
     public Photo(){}
 
-    public Photo(String bucket, Date date, Uri imageUri, boolean favorite)
+    public Photo(String bucket, Date date, Uri imageUri, boolean favorite,
+                 String displayName, String relativePath, Long size)
     {
         _bucket=bucket;
         _date=date;
         _imageUri=imageUri;
         _favorite = favorite;
+        _displayName = displayName;
+        _relativePath = relativePath;
+        _size = size;
     }
 
     public static final Creator<Photo> CREATOR = new Creator<Photo>() {
@@ -50,6 +57,12 @@ public class Photo implements Parcelable {
     public Uri get_imageUri() {
         return _imageUri;
     }
+
+    public String get_displayName() {return _displayName;}
+
+    public String get_relativePath() {return  _relativePath;}
+
+    public Long get_size() {return _size;}
 
     public void set_bucket(String _bucket) {
         this._bucket = _bucket;
@@ -113,6 +126,9 @@ public class Photo implements Parcelable {
         dest.writeParcelable(_imageUri, flags);
         dest.writeLong(_date.getTime());
         dest.writeBoolean(_favorite);
+        dest.writeString(_displayName);
+        dest.writeString(_relativePath);
+        dest.writeLong(_size);
     }
 
     protected Photo(Parcel in) {
@@ -120,6 +136,13 @@ public class Photo implements Parcelable {
         _imageUri = in.readParcelable(Uri.class.getClassLoader());
         _date = new Date(in.readLong());
         _favorite = in.readBoolean();
+        _displayName = in.readString();
+        _relativePath = in.readString();
+        _size = in.readLong();
+    }
+
+    public String getTheFirstLetterName() {
+        return _displayName.substring(0,1);
     }
 
 }

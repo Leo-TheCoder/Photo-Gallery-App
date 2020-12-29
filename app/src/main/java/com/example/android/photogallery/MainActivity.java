@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private MainUIAdapter myAdapter;
 
     private ImageButton btnMenuList;
+    private ImageButton btnSortList;
     private ArrayList<Photo> myPhotoList = new ArrayList<Photo>();
     private ArrayList<Video> myVideoList = new ArrayList<Video>();
     private Intent myService;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
         MemoryCache.instance();
         btnMenuList = findViewById(R.id.btn_option);
+        btnSortList = findViewById(R.id.btn_sort);
 
         setMyAdapter();
 
@@ -144,7 +146,15 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(lockIntent, IS_LOCK_REQUEST);
                     }
                 } else {
-                    showPopup(v);
+                    showPopupSetting(v);
+                }
+            }
+        });
+        btnSortList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isFakeOn) {
+                    showPopupSort(v);
                 }
             }
         });
@@ -215,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
      * function that pop up the menu when button More got hit
      * @param v the view that got hit
      */
-    public void showPopup(View v){
+    public void showPopupSetting(View v){
         PopupMenu popupMenu = new PopupMenu(this, btnMenuList);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -239,6 +249,39 @@ public class MainActivity extends AppCompatActivity {
         popupMenu.inflate(R.menu.more_pop_up_menu);
         popupMenu.show();
     }
+
+    public void showPopupSort(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, btnSortList);
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int state = photoDateAdapter.STATE_ADAPTER;
+                switch (item.getItemId()){
+                    case R.id.MainSortAToZ:
+                        photoDateAdapter.sortAToZ();
+                        return true;
+                    case R.id.MainSortZToA:
+                        photoDateAdapter.sortZToA();
+                        return true;
+                    case R.id.MainSortNearest:
+                        try {
+                            photoDateAdapter.sortByTimeNearest();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        return true;
+                    case R.id.MainSortOldest:
+                        photoDateAdapter.sortByTimeOldest();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        popupMenu.inflate(R.menu.sort_pop_up_menu);
+        popupMenu.show();
+    }
+
     private void openCamera() {
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);

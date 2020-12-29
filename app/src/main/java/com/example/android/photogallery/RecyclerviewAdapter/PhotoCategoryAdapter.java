@@ -19,6 +19,7 @@ import com.example.android.photogallery.MainActivity;
 import com.example.android.photogallery.Models.Photo;
 import com.example.android.photogallery.Models.PhotoCategory;
 import com.example.android.photogallery.R;
+import com.example.android.photogallery.Utils.PhotoUtils;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,6 +35,12 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
 
 
     private boolean isFakeOn = false;
+
+    //STATE_ADAPTER = 1: Sorted A->Z
+    //STATE_ADAPTER = 2: Sorted Z->A
+    //STATE_ADAPTER = 3: Sorted Nearest (Default)
+    //STATE_ADAPTER = 4: Sorted Oldest
+    public static int STATE_ADAPTER = 3;
 
 
     // Provide a direct reference to each of the views within a data item
@@ -220,15 +227,163 @@ public class PhotoCategoryAdapter extends ListAdapter<PhotoCategory, PhotoCatego
                 }
             };
 
-    public void updateList(ArrayList<PhotoCategory> newList) {
-        _photoCategoryList = new ArrayList<PhotoCategory>(newList);
-        int count = 0;
-        for(int i =0;i < newList.size(); i++) {
-            count += newList.get(i).get_photosList().size();
-            Log.e("UPDATE", "updateList: " + newList.get(i).get_title() );
-        }
-        Log.e("UPDATE", "COUNT = " + count);
+    public void refreshList(ArrayList<PhotoCategory> updatedList){
+        submitList(updatedList);
+        _photoCategoryList = updatedList;
+    }
 
-        submitList(_photoCategoryList);
+    public static ArrayList<PhotoCategory> sortByNameAsc() {
+        ArrayList<Photo> list = PhotoUtils.getImagesFromExternal();
+        ArrayList<PhotoCategory> sortedList = new ArrayList<PhotoCategory>();
+        for(int i = 0; i < list.size(); i++){
+            Photo currentPhoto = list.get(i);
+            String title = "#" + currentPhoto.getTheFirstLetterName();
+
+            if(sortedList.isEmpty()){
+                PhotoCategory newPhotoCategory = new PhotoCategory(
+                        PhotoCategory.CATEGORY_DATE,
+                        title,
+                        new ArrayList<Photo>(),
+                        null
+                );
+                newPhotoCategory.addPhoto(currentPhoto);
+                sortedList.add(newPhotoCategory);
+                continue;
+            }
+            for(int j = 0; j < sortedList.size(); j++) {
+                String checkingTitle = sortedList.get(j).get_title();
+                int compareResult = title.compareTo(checkingTitle);
+                if(compareResult == 0) {
+                    sortedList.get(j).addPhoto(currentPhoto);
+                    break;
+                }
+                else if(compareResult < 0) {
+                    if(j < list.size() - 1) {
+                        continue;
+                    }
+                    else {
+                        PhotoCategory newPhotoCategory = new PhotoCategory(
+                                PhotoCategory.CATEGORY_DATE,
+                                title,
+                                new ArrayList<Photo>(),
+                                null
+                        );
+                        newPhotoCategory.addPhoto(currentPhoto);
+                        sortedList.add(newPhotoCategory);
+                        break;
+                    }
+                }
+                else {
+                    PhotoCategory newPhotoCategory = new PhotoCategory(
+                            PhotoCategory.CATEGORY_DATE,
+                            title,
+                            new ArrayList<Photo>(),
+                            null
+                    );
+                    newPhotoCategory.addPhoto(currentPhoto);
+                    sortedList.add(j, newPhotoCategory);
+                    break;
+                }
+            }
+        }
+        return sortedList;
+    }
+
+    public static ArrayList<PhotoCategory> sortNearest() throws ParseException {
+        ArrayList<Photo> list = PhotoUtils.getImagesFromExternal();
+        ArrayList<PhotoCategory> sortedList = new ArrayList<PhotoCategory>();
+        for(int photoIndex = 0; photoIndex < list.size(); photoIndex++){
+            Photo currentPhoto = list.get(photoIndex);
+            Date dateCategory;
+            Date dateNewPhoto = MainActivity.Formatter.parse(currentPhoto.get_dateTitle());
+            boolean flag = false;
+            for (int i = 0; i < sortedList.size(); i++) {
+                dateCategory = MainActivity.Formatter.parse(sortedList.get(i).get_title());
+                if (dateNewPhoto.equals(dateCategory)) {
+                    sortedList.get(i).addPhoto(currentPhoto);
+                    flag = true;
+                    break;
+                } else if (dateNewPhoto.after(dateCategory)) {
+                    PhotoCategory newPhotoDate = new PhotoCategory(
+                            PhotoCategory.CATEGORY_DATE,
+                            currentPhoto.get_dateTitle(),
+                            new ArrayList<Photo>(),
+                            null);
+                    newPhotoDate.addPhoto(currentPhoto);
+                    sortedList.add(i, newPhotoDate);
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag == false) {
+                PhotoCategory newPhotoDate = new PhotoCategory(
+                        PhotoCategory.CATEGORY_DATE,
+                        currentPhoto.get_dateTitle(),
+                        new ArrayList<Photo>(),
+                        null);
+                newPhotoDate.addPhoto(currentPhoto);
+                sortedList.add(newPhotoDate);
+            }
+        }
+        return sortedList;
+    }
+
+    public void sortByTimeNearest() throws ParseException {
+        if(STATE_ADAPTER < 3) {
+            ArrayList<PhotoCategory> sortedList = sortNearest();
+            refreshList(sortedList);
+        }
+        else if(STATE_ADAPTER == 4) {
+            ArrayList<PhotoCategory> myList = reverseArrayList(_photoCategoryList);
+            refreshList(myList);
+        }
+        STATE_ADAPTER = 3;
+    }
+
+    public void sortByTimeOldest() {
+        if(STATE_ADAPTER < 3) {
+            try {
+                sortByTimeNearest();
+                refreshList(reverseArrayList(_photoCategoryList));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(STATE_ADAPTER  == 3){
+            refreshList(reverseArrayList(_photoCategoryList));
+        }
+        STATE_ADAPTER = 4;
+    }
+
+    public void sortAToZ() {
+        if(STATE_ADAPTER > 2) {
+            ArrayList<PhotoCategory> myList = sortByNameAsc();
+            refreshList(myList);
+        }
+        else if(STATE_ADAPTER == 2) {
+            ArrayList<PhotoCategory> myList = reverseArrayList(_photoCategoryList);
+            refreshList(myList);
+        }
+        STATE_ADAPTER = 1;
+    }
+
+    public void sortZToA() {
+        if(STATE_ADAPTER > 2) {
+            ArrayList<PhotoCategory> myList = reverseArrayList(sortByNameAsc());
+            refreshList(myList);
+        }
+        else if(STATE_ADAPTER == 1) {
+            ArrayList<PhotoCategory> myList = reverseArrayList(_photoCategoryList);
+            refreshList(myList);
+        }
+        STATE_ADAPTER = 2;
+    }
+
+    private ArrayList<PhotoCategory> reverseArrayList(ArrayList<PhotoCategory> origin) {
+        ArrayList<PhotoCategory> reversedList = new ArrayList<PhotoCategory>();
+        for(int i = origin.size() - 1; i >= 0; i--) {
+            reversedList.add(origin.get(i));
+        }
+        return reversedList;
     }
 }
