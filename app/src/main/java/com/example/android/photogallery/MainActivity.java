@@ -55,6 +55,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public final static SimpleDateFormat Formatter = new SimpleDateFormat(Photo.DATE_FORMAT, Locale.ENGLISH);
+    public final static SimpleDateFormat FormatterDetail = new SimpleDateFormat(Photo.DATE_FORMAT_DETAIL, Locale.ENGLISH);
     private static final int MY_CAMERA_PERMISSION_CODE = 101;
     public final static int PAGE_NUMBER = 3;
     public final static int IS_LOCK_REQUEST = 100;

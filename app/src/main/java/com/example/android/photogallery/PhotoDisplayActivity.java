@@ -56,6 +56,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
     private boolean settingPop = true;
 
+    TextView imageName, imageTime;
     ImageButton btnShare, btnMore, btnBack, btnEdit, btnDelete,btnFavorite;
     TouchImageView imageDisplay;
     LinearLayout linearTopNav, linearBottomSetting;
@@ -84,7 +85,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
         int position = bundle.getInt("position");
         thisPhoto = myPhotoList.get(position);
-
+        imageName = (TextView) findViewById(R.id.textViewTitle);
+        imageTime = (TextView) findViewById(R.id.textViewUploadTime);
         btnShare = (ImageButton) findViewById(R.id.btnShare);
         btnMore = (ImageButton) findViewById(R.id.btnMore);
         btnBack = (ImageButton) findViewById(R.id.btnBack);
@@ -106,6 +108,8 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnShare.setOnClickListener(this);
         btnBack.setOnClickListener(this);
 
+        imageName.setText(thisPhoto.get_displayName());
+        imageTime.setText(thisPhoto.get_dateHourTitle());
         photoUri = myPhotoList.get(position).get_imageUri();
         sendingUri = photoUri.toString();
         imageDisplay.setImageURI(photoUri);
