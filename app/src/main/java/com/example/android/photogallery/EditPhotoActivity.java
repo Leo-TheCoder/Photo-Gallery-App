@@ -11,6 +11,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -22,6 +25,8 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.android.photogallery.Utils.BitmapFileUtils;
 
+import java.util.ArrayList;
+
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 
@@ -32,6 +37,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     LinearLayout colors;
     View color1, color2, color3, color4, color5, color6, color7, color8, color9, color10;
     String uri;
+    GridView grid;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +48,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         Intent callingIntent = getIntent();
         uri = callingIntent.getStringExtra("photoUri");
         mPhotoEditorView.getSource().setImageURI(Uri.parse(uri));
+
 
         btnBrush = findViewById(R.id.btnBrush);
         btnEraser = findViewById(R.id.btnEraser);
@@ -84,6 +91,18 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         mPhotoEditor = new PhotoEditor.Builder(this, mPhotoEditorView)
                 .setPinchTextScalable(true)
                 .build();
+        final ArrayList<String> emojisList = PhotoEditor.getEmojis(getBaseContext());
+        grid = findViewById(R.id.emoji_list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, emojisList);
+
+        grid.setAdapter(adapter);
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mPhotoEditor.addEmoji(emojisList.get(position));
+                grid.setVisibility(View.GONE);
+            }
+        }) ;
 
     }
 
@@ -135,6 +154,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
         else if (v.getId()==btnFilter.getId())
         {
             colors.setVisibility(View.GONE);
+            grid.setVisibility(View.VISIBLE);
         }
         else if (v.getId()==btnUndo.getId())
         {
