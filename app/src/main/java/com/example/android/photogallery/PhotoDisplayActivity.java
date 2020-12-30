@@ -257,7 +257,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
 
     @SuppressLint({"InflateParams", "SetTextI18n"})
     public void imageDetailDialog(){
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this, R.style.SheetDialog);
         View dialogView = getLayoutInflater().inflate(R.layout.layout_photo_detail,null);
         bottomSheetDialog.setContentView(dialogView);
 

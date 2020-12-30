@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/custom_linear_layout"
+    android:background="@drawable/layout_round_corners"
     android:padding="10dp"
     android:layout_height="match_parent"
     android:focusable="false"
@@ -98,7 +98,7 @@
         <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/baseline_description_black_18dp"
+            android:src="@drawable/baseline_description_18dp"
             android:layout_margin="10dp"
             tools:ignore="ContentDescription" />
         <TextView

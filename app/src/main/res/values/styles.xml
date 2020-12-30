@@ -4,4 +4,7 @@
         <item name="android:windowBackground">@drawable/bg_splashscreen_light</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+    <style name="SheetDialog" parent="Animation.Design.BottomSheetDialog">
+        <item name="android:colorBackground">@android:color/transparent</item>
+    </style>
 </resources>
