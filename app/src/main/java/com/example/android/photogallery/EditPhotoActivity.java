@@ -1,6 +1,7 @@
 package com.example.android.photogallery;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -12,11 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.example.android.photogallery.Utils.BitmapFileUtils;
 
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
@@ -84,6 +88,7 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
     }
 
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onClick(View v) {
         if (v.getId() == btnBrush.getId()) {
@@ -94,26 +99,36 @@ public class EditPhotoActivity extends AppCompatActivity implements View.OnClick
             colors.setVisibility(View.GONE);
         } else if (v.getId() == btnSticker.getId()) {
             colors.setVisibility(View.GONE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                Log.d("Permission","No permission granted");
-                return;
-            }
-            mPhotoEditor.saveAsFile(uri, new PhotoEditor.OnSaveListener() {
+
+
+
+            String filepath = BitmapFileUtils.getFilePath(this,Uri.parse(uri));
+
+            int index = filepath.lastIndexOf(".");
+            //print filename
+            //System.out.println(file.getName().substring(0, index));
+            //print extension
+            //System.out.println(file.getName().substring(index));
+            String ext = filepath.substring(index);
+            String path = filepath.substring(0, filepath.lastIndexOf("/") + 1);
+            //use file.renameTo() to rename the file
+            final String newFilePath = path + System.currentTimeMillis() + ext;
+
+            Log.d("File path: ", newFilePath);
+
+            mPhotoEditor.saveAsFile(newFilePath, new PhotoEditor.OnSaveListener() {
                 @Override
                 public void onSuccess(@NonNull String imagePath) {
-                    Log.e("PhotoEditor", "Image Saved Successfully");
+                    Toast.makeText(getBaseContext(), "Image saved successfully",
+                            Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    Log.e("PhotoEditor", "Failed to save Image");
+                    Toast.makeText(getBaseContext(), "Failed to save Image",
+                            Toast.LENGTH_LONG).show();
+                    Log.e("File path: ", newFilePath);
+
                 }
             });
         }
