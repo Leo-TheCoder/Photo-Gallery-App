@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/MainSortAToZ"
+        android:title="A -> Z">
+    </item>
+    <item android:id="@+id/MainSortZToA"
+        android:title="Z -> A">
+    </item>
+    <item android:id="@+id/MainSortNearest"
+        android:title="Nearest"/>
+    <item android:id="@+id/MainSortOldest"
+        android:title="Oldest"/>
+</menu>

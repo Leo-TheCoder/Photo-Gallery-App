@@ -35,7 +35,6 @@ public class RunnableLoadThumbnail implements Runnable {
         try {
 
             Bitmap bitmap = mContext.getContentResolver().loadThumbnail(resId, new Size(150,150),null);
-            Log.e("SIZE", "run: " + bitmap.getByteCount() );
             addBitmapToMemoryCache(resId, bitmap);
 
         } catch (IOException e) {

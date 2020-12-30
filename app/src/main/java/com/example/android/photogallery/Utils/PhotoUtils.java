@@ -79,7 +79,10 @@ public class PhotoUtils {
                 MediaStore.Images.Media.DATE_TAKEN,
                 MediaStore.Images.Media.DATE_MODIFIED,
                 MediaStore.Images.Media.DATE_ADDED,
-                MediaStore.Images.Media.IS_FAVORITE};
+                MediaStore.Images.Media.IS_FAVORITE,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.SIZE,
+                MediaStore.Images.Media.RELATIVE_PATH};
 
         Cursor cursor = context.getContentResolver().query(allImageUri, projection, null, null, null);
 
@@ -87,7 +90,8 @@ public class PhotoUtils {
 
         if (cursor.moveToFirst()) {
             String id,bucket,isTrash, isFavorite,prevBucket = "";
-            Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L;
+            String displayName, relativePath;
+            Long dateTaken = 0L,dateModif = 0L,dateAdded = 0L, size = 0L;
 
             //get column Index
             int bucketColumn = cursor.getColumnIndex(
@@ -104,6 +108,12 @@ public class PhotoUtils {
 
             int favColumn = cursor.getColumnIndex(MediaStore.Images.Media.IS_FAVORITE);
 
+            int displayNameColumn = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+
+            int relativePathColumn = cursor.getColumnIndex(MediaStore.Images.Media.RELATIVE_PATH);
+
+            int sizeColumn = cursor.getColumnIndex(MediaStore.Images.Media.SIZE);
+
             do {
                 // Get the field values
                 bucket = cursor.getString(bucketColumn);
@@ -112,6 +122,9 @@ public class PhotoUtils {
                 dateModif = cursor.getLong(dateModifiedColumn);
                 dateAdded = cursor.getLong(dateAddedColumn);
                 isFavorite = cursor.getString(favColumn);
+                displayName = cursor.getString(displayNameColumn);
+                relativePath = cursor.getString(relativePathColumn);
+                size = cursor.getLong(sizeColumn);
                 boolean isFav = isFavorite.equals("1");
                 id = cursor.getString(idColumn);
                 Log.i(LOG_TAG, "date= " + dateTaken + " bucket= " + bucket + " id= " + id + " favorite= " + isFavorite);
@@ -140,7 +153,7 @@ public class PhotoUtils {
                     Log.e("TAG",prevBucket);
                 }
 
-                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, isFav);
+                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, isFav, displayName, relativePath, size);
                 photosList.add(newPhoto);
                 imageUrisList.add(allImageUri);
 
@@ -235,7 +248,7 @@ public class PhotoUtils {
                     DateFromEpocTime = new Date(dateModif*1000L);
                 }
 
-                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, false);
+                Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, false, null, null, null);
                 trashPhotoList.add(newPhoto);
             } while (cursor.moveToNext());
         }
@@ -260,7 +273,7 @@ public class PhotoUtils {
                     resources.getResourcePackageName(id) + '/' +
                     resources.getResourceTypeName(id) + '/' +
                     resources.getResourceEntryName(id) );
-            Photo newPhoto = new Photo("Camera",new Date(System.currentTimeMillis()), imageUri,false);
+            Photo newPhoto = new Photo("Camera",new Date(System.currentTimeMillis()), imageUri,false, null, null, null);
             fakePhotoList.add(newPhoto);
         }
     }

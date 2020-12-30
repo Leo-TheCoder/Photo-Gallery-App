@@ -46,7 +46,6 @@ public class RunnableLoadFake implements Runnable {
                 width = (int) (height * bitmapRatio);
             }
             bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-            Log.e("SIZE", "run: " + bitmap.getByteCount() );
             addBitmapToMemoryCache(resId, bitmap);
 
         } catch (IOException e) {
