@@ -18,7 +18,7 @@ public class Photo implements Parcelable {
     private String _relativePath;
     private long _size;
     public static final String DATE_FORMAT = "dd-MM-yyyy";
-    public static final String DATE_FORMAT_DETAIL = "dd-MM-yyyy hh:mm a";
+    public static final String DATE_FORMAT_TIME = "hh:mm a";
 
 
     public Photo(){}
@@ -85,7 +85,7 @@ public class Photo implements Parcelable {
         return MainActivity.Formatter.format(_date);
     }
 
-    public String get_dateHourTitle() { return MainActivity.FormatterDetail.format(_date);}
+    public String get_dateHourTitle() { return MainActivity.FormatterTime.format(_date);}
 
     public boolean takenBeforeByDay(Photo photo){
         String dateTitle1 = this.get_dateTitle();
