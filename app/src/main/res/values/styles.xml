@@ -1,7 +1,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="SplashTheme" parent ="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/bg_splashscreen_light</item>
+        <item name="android:windowBackground">@drawable/bg_splashscreen</item>
         <item name="android:windowFullscreen">true</item>
     </style>
     <style name="SheetDialog" parent="Animation.Design.BottomSheetDialog">
