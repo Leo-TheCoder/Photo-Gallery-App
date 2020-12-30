@@ -108,7 +108,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         btnShare.setOnClickListener(this);
         btnBack.setOnClickListener(this);
 
-        imageName.setText(thisPhoto.get_displayName());
+        imageName.setText(thisPhoto.get_dateTitle());
         imageTime.setText(thisPhoto.get_dateHourTitle());
         photoUri = myPhotoList.get(position).get_imageUri();
         sendingUri = photoUri.toString();
