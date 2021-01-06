@@ -142,49 +142,16 @@ public class BitmapFileUtils {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DATE_MODIFIED,System.currentTimeMillis());
         values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/" + bucket);
-
-        Cursor query = null;
-
-        String[] projection = {MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.BUCKET_ID,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN,
-                MediaStore.Images.Media.DATE_MODIFIED,
-                MediaStore.Images.Media.IS_TRASHED};
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            query = callingActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    projection,
-                    null,
-                    null);
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                resolver.update(
+                        imageUri,values,null);
+            }
         }
-
-        if (query==null){
+        catch (SecurityException e) {
+            Log.e("Update FAILED", "" + e.getMessage());
             return false;
         }
-
-        if (query.moveToFirst()) {
-            int idColumn = query.getColumnIndex(
-                    MediaStore.Images.Media._ID);
-            int bucketColumn = query.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-            int bucketNameCol = query.getColumnIndex( MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            int dateTakenCol = query.getColumnIndex( MediaStore.Images.Media.DATE_TAKEN);
-            int isTrashCol = query.getColumnIndex(
-                    MediaStore.Images.Media.IS_TRASHED);
-            do {
-                values.put(MediaStore.Images.Media._ID,query.getString(idColumn));
-                values.put(MediaStore.Images.Media.BUCKET_DISPLAY_NAME,bucket);
-                values.put(MediaStore.Images.Media.DATE_TAKEN,query.getString(dateTakenCol));
-                values.put(   MediaStore.Images.Media.IS_TRASHED,query.getString(isTrashCol));
-                // Perform the actual removal.
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                        resolver.update(
-                                imageUri,values,null);
-
-                }
-            } while (query.moveToNext());
-        }
-        query.close();
         return true;
     }
     public static class RecoverableSecurityExceptionExt extends SecurityException {

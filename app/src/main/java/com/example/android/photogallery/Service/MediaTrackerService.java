@@ -96,7 +96,7 @@ public class MediaTrackerService extends Service {
                 }
 
                 for (int i = 0; i < albumPhotos.size(); i++) {
-                    if (photoTitle.equals(albumPhotos.get(i).get_title())) {
+                    if (photoTitle.compareTo(albumPhotos.get(i).get_title()) == 0) {
                         albumPhotos.get(i).addPhoto(photo);
                         flag = true;
                         break;

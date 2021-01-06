@@ -85,7 +85,7 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         }
 
         for (int i = 0; i < mPhotoCategoryList.size(); i++) {
-            if (photoTitle.equals(mPhotoCategoryList.get(i).get_title())) {
+            if (photoTitle.compareTo(mPhotoCategoryList.get(i).get_title()) == 0) {
                 mPhotoCategoryList.get(i).addPhoto(newPhoto);
                 flag = true;
                 submitList(mPhotoCategoryList);
@@ -142,23 +142,31 @@ public class AlbumsAdapter extends ListAdapter<PhotoCategory, AlbumsAdapter.View
         imageList.add(holder.imageView4);
         holder.title.setText(title);
 
-        for(int i = 0; i < numberOfPhotos; i++)
+        for(int i = 0; i < 4; i++)
         {
-            if(i > 3) {
-                holder.imageView4.setColorFilter(Color.rgb(88,88,88), PorterDuff.Mode.DARKEN);
-                int remainPhotos = numberOfPhotos - 3;
-                holder.morePhotos.setText("" + remainPhotos+"\nmore");
-                break;
+            if(i < numberOfPhotos) {
+                imageList.get(i).setVisibility(View.VISIBLE);
+                holder.morePhotos.setVisibility(View.VISIBLE);
+                if(i == 3) {
+                    holder.imageView4.setColorFilter(Color.rgb(88,88,88), PorterDuff.Mode.DARKEN);
+                    int remainPhotos = numberOfPhotos - 3;
+                    holder.morePhotos.setText("" + remainPhotos+"\nmore");
+                }
+
+                Photo currentPhoto = currentPhotoList.get(i);
+                ImageView imageView = imageList.get(i);
+
+                if (!isFakeOn) {
+                    MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
+                } else {
+                    MemoryCache.loadBitmapFake(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
+                }
+            }
+            else {
+                imageList.get(i).setVisibility(View.INVISIBLE);
+                holder.morePhotos.setVisibility(View.INVISIBLE);
             }
 
-            Photo currentPhoto = currentPhotoList.get(i);
-            ImageView imageView = imageList.get(i);
-
-            if (!isFakeOn) {
-                MemoryCache.loadBitmapThumbnail(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
-            } else {
-               MemoryCache.loadBitmapFake(mContext, currentPhoto.get_imageUri(), imageView, new MyHandler(imageView));
-            }
         }
         holder.setAlbumClickListener(new AlbumClickListener() {
             @Override
