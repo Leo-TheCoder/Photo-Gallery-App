@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import com.example.android.photogallery.Models.Photo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -147,10 +148,9 @@ public class PhotoUtils {
                 Log.i(LOG_TAG, "dateTime= " + dateTime);
                 // Add new loaded photo
 
-                if (!prevBucket.equals(bucket)){
+                if (!bucketList.contains(bucket)){
                     bucketList.add(bucket);
-                    prevBucket = bucket;
-                    Log.e("TAG",prevBucket);
+                    Log.e("TAG",bucket);
                 }
 
                 Photo newPhoto = new Photo(bucket, DateFromEpocTime, imageUri, isFav, displayName, relativePath, size);
