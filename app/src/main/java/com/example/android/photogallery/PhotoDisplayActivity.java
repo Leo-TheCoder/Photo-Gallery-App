@@ -1,6 +1,7 @@
 package com.example.android.photogallery;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
@@ -53,6 +54,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     private static final int MY_CAMERA_PERMISSION_CODE = 200;
     private static final int TRASH_IMAGE_REQUEST = 201;
     private static final int FAV_IMAGE_REQUEST = 202;
+    private static final int WRITE_IMAGE_REQUEST = 203;
 
     private boolean settingPop = true;
 
@@ -238,6 +240,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
     public void showPopup(View v) {
         PopupMenu popupMenu = new PopupMenu(this, btnMore);
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.photoMenuCamera) {
@@ -248,7 +251,7 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
                     }
                     return true;
                 } else if (menuItem.getItemId() == R.id.photoAddToAlbum){
-                    bucketListDialog();
+                    promptWriteRequest();
                 } else if (menuItem.getItemId() == R.id.photoDetail){
                     imageDetailDialog();
                 }
@@ -292,6 +295,19 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         photoRes.setText("RES: " + bundle.getString("RESOLUTION"));
 
         bottomSheetDialog.show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    public void promptWriteRequest(){
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(photoUri);
+        PendingIntent pIntent = MediaStore.createWriteRequest(getContentResolver(), uris);
+
+        try {
+            startIntentSenderForResult(pIntent.getIntentSender(),WRITE_IMAGE_REQUEST, null, 0, 0, 0);
+        } catch (IntentSender.SendIntentException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -421,6 +437,9 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         } else if (requestCode == TRASH_IMAGE_REQUEST){
             if (resultCode == RESULT_OK)
                 finish();
+        } else if (requestCode == WRITE_IMAGE_REQUEST){
+            if (resultCode == RESULT_OK)
+                bucketListDialog();
         }
     }
 

@@ -2,11 +2,13 @@ package com.example.android.photogallery.Utils;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.RecoverableSecurityException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +22,8 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
+
+import com.example.android.photogallery.PhotoDisplayActivity;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,6 +39,7 @@ import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class BitmapFileUtils {
@@ -173,13 +178,26 @@ public class BitmapFileUtils {
                 values.put(   MediaStore.Images.Media.IS_TRASHED,query.getString(isTrashCol));
                 // Perform the actual removal.
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    resolver.update(
-                            imageUri,values,null);
+                        resolver.update(
+                                imageUri,values,null);
+
                 }
             } while (query.moveToNext());
         }
         query.close();
         return true;
+    }
+    public static class RecoverableSecurityExceptionExt extends SecurityException {
+
+        private final PendingIntent pIntent;
+
+        public RecoverableSecurityExceptionExt(PendingIntent pIntent) {
+            this.pIntent = pIntent;
+        }
+
+        public PendingIntent getPIntent() {
+            return pIntent;
+        }
     }
 
 
