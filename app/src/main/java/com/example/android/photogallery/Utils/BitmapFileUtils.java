@@ -168,8 +168,7 @@ public class BitmapFileUtils {
                     MediaStore.Images.Media.IS_TRASHED);
             do {
                 values.put(MediaStore.Images.Media._ID,query.getString(idColumn));
-                values.put(MediaStore.Images.Media.BUCKET_ID,query.getString(bucketColumn));
-                values.put(MediaStore.Images.Media.BUCKET_DISPLAY_NAME,query.getString(bucketNameCol));
+                values.put(MediaStore.Images.Media.BUCKET_DISPLAY_NAME,bucket);
                 values.put(MediaStore.Images.Media.DATE_TAKEN,query.getString(dateTakenCol));
                 values.put(   MediaStore.Images.Media.IS_TRASHED,query.getString(isTrashCol));
                 // Perform the actual removal.
