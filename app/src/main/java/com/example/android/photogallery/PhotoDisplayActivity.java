@@ -283,8 +283,13 @@ public class PhotoDisplayActivity extends AppCompatActivity implements View.OnCl
         photoName.setText(bundle.getString("DISPLAY_NAME"));
 
         String size = bundle.getString("SIZE");
+        if(size == null) {
+            photoSize.setText("Size: null");
+        }
+        else {
+            photoSize.setText("Size: " + Long.parseLong(size)/1024+ " KB");
+        }
 
-        photoSize.setText("Size: " + Long.parseLong(size)/1024+ " KB");
         photoDir.setText(BitmapFileUtils.getFilePath(this,photoUri));
         photoDate.setText(date.toString());
         if (bundle.getString("DESCRIPTION") == null){
