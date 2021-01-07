@@ -20,9 +20,12 @@ public class SettingActivity extends AppCompatActivity  implements View.OnClickL
 
         //set up view
         accountBtn = (Button)findViewById(R.id.btnAccount);
+        accountBtn.setVisibility(View.GONE);
         themeBtn = (Button)findViewById(R.id.btnTheme);
         displayModeBtn = (Button)findViewById(R.id.btnDisplayMode);
+        displayModeBtn.setVisibility(View.GONE);
         HAFBtn = (Button)findViewById(R.id.btnHAF);
+        HAFBtn.setVisibility(View.GONE);
         secureBtn = (Button)findViewById(R.id.btnSecure);
         btnBack = (ImageButton)findViewById(R.id.btnBack);
 
