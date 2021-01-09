@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
             if(myPhotoList.size() == 0) {
                 PhotoUtils.generateFakeImageList(this);
                 myPhotoList = PhotoUtils.getFakeImages();
+                Log.e("TAG","I");
             }
 
         } else {

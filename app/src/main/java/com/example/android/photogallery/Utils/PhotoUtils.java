@@ -263,7 +263,6 @@ public class PhotoUtils {
 
     //fake image list
     public static void generateFakeImageList(Activity callingActivity) {
-        ArrayList<Photo> fakeImageList = new ArrayList<>();
         Resources resources = callingActivity.getResources();
 
         for (int i = 1; i<=10;i++){
@@ -273,7 +272,8 @@ public class PhotoUtils {
                     resources.getResourcePackageName(id) + '/' +
                     resources.getResourceTypeName(id) + '/' +
                     resources.getResourceEntryName(id) );
-            Photo newPhoto = new Photo("Camera",new Date(System.currentTimeMillis()), imageUri,false, null, null, null);
+            Log.e("TAG","BUG " + imageUri);
+            Photo newPhoto = new Photo("Camera",new Date(System.currentTimeMillis()), imageUri,false, null, null, Long.parseLong("0"));
             fakePhotoList.add(newPhoto);
         }
     }
